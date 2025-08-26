@@ -1,0 +1,124 @@
+.metrics-card {
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease-in-out;
+}
+
+.metrics-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.metrics-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-md);
+}
+
+.metrics-icon {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.metrics-change {
+  display: flex;
+  align-items: center;
+}
+
+.change-indicator {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
+}
+
+.change-indicator.success {
+  background-color: rgb(16 185 129 / 0.1);
+  color: var(--success-color);
+}
+
+.change-indicator.danger {
+  background-color: rgb(239 68 68 / 0.1);
+  color: var(--danger-color);
+}
+
+.change-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.metrics-card-body {
+  text-align: left;
+}
+
+.metrics-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin: 0 0 var(--spacing-sm) 0;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.metrics-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+/* Color variants */
+.metrics-card-primary {
+  border-left: 4px solid var(--primary-color);
+}
+
+.metrics-card-success {
+  border-left: 4px solid var(--success-color);
+}
+
+.metrics-card-warning {
+  border-left: 4px solid var(--warning-color);
+}
+
+.metrics-card-info {
+  border-left: 4px solid var(--info-color);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .metrics-card {
+    padding: var(--spacing-md);
+  }
+  
+  .metrics-icon {
+    font-size: 1.75rem;
+  }
+  
+  .metrics-value {
+    font-size: 1.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .metrics-card-header {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    align-items: flex-start;
+  }
+  
+  .metrics-change {
+    align-self: flex-end;
+  }
+}
+
+
+
+
+
