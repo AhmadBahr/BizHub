@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { IoAdapter } from '@nestjs/platform-socket.io';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -11,6 +12,9 @@ async function bootstrap() {
     origin: process.env.CORS_ORIGIN?.split(',') || ['http://localhost:5173', 'http://localhost:3000'],
     credentials: true,
   });
+
+  // WebSocket adapter
+  app.useWebSocketAdapter(new IoAdapter(app));
 
   // Global validation pipe
   app.useGlobalPipes(new ValidationPipe({
@@ -32,6 +36,11 @@ async function bootstrap() {
     .addTag('tasks', 'Task management')
     .addTag('activities', 'Activity tracking')
     .addTag('dashboard', 'Dashboard metrics and analytics')
+    .addTag('notifications', 'Real-time notifications')
+    .addTag('files', 'File upload and management')
+    .addTag('export', 'Data export functionality')
+    .addTag('bulk-operations', 'Bulk operations on entities')
+    .addTag('pdf', 'PDF generation')
     .addBearerAuth()
     .build();
 
