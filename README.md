@@ -1,278 +1,326 @@
-# BizHub CRM
+# BizHub CRM - Complete CRM Solution
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![React](https://img.shields.io/badge/React-20232A?style=flat&logo=react&logoColor=61DAFB)](https://reactjs.org/)
-[![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat&logo=vite&logoColor=white)](https://vitejs.dev/)
-[![Redux Toolkit](https://img.shields.io/badge/Redux_Toolkit-764ABC?style=flat&logo=redux&logoColor=white)](https://redux-toolkit.js.org/)
-[![NestJS](https://img.shields.io/badge/NestJS-E0234E?style=flat&logo=nestjs&logoColor=white)](https://nestjs.com/)
-[![Node.js](https://img.shields.io/badge/Node.js-43853D?style=flat&logo=node.js&logoColor=white)](https://nodejs.org/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=flat&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
-
-> A modern, full-stack CRM solution built with React + TypeScript frontend and NestJS backend, designed for small-to-medium sized businesses.
+A comprehensive Customer Relationship Management (CRM) solution built with React, TypeScript, NestJS, and PostgreSQL. This application provides all the essential features needed for small-to-medium businesses to manage their customer relationships effectively.
 
 ## 🚀 Features
 
-### Frontend (React + TypeScript)
-- **📊 Dashboard Overview** - Key metrics, charts, and recent activities
-- **👥 Contacts Management** - Full CRUD operations with search and filtering
-- **🎯 Leads & Deals** - Kanban board and lead scoring system
-- **✅ Tasks & Calendar** - Task management with due dates
-- **📈 Analytics** - Conversion rates, revenue trends, and productivity metrics
-- **🔗 Integrations** - Payment gateway, e-commerce, and marketing tools
-- **🔐 Authentication** - JWT-based auth with role-based access control
-- **📱 Responsive Design** - Mobile-first approach with modern UI/UX
+### ✅ Frontend Features
 
-### Backend (NestJS)
-- **🏗️ RESTful API** - Clean, scalable architecture
-- **🔒 Authentication & Authorization** - JWT tokens with session cookies
-- **🗄️ Database Integration** - PostgreSQL with TypeORM
-- **🛡️ Security** - Input validation, CORS, rate limiting
-- **📝 API Documentation** - Swagger/OpenAPI integration
-- **🧪 Testing** - Unit and integration tests
-- **📦 Docker Support** - Containerized deployment
+#### Real-time Notifications
+- **Live notifications** using Socket.IO
+- **Notification dropdown** with unread count badge
+- **Mark as read/unread** functionality
+- **Delete notifications** individually
+- **Mark all as read** option
+- **Real-time updates** for leads, deals, tasks, and system events
 
-## 🛠️ Tech Stack
+#### File Upload Functionality
+- **Drag and drop** file upload interface
+- **Multiple file selection** support
+- **File validation** (size, type)
+- **Progress tracking** for uploads
+- **File preview** with icons based on file type
+- **Entity association** (attach files to leads, deals, contacts)
+- **Download functionality**
+
+#### Export/Import Data Features
+- **CSV and Excel export** for all entities
+- **Bulk data import** with validation
+- **Format selection** (CSV, XLSX)
+- **Import instructions** and templates
+- **Error handling** for invalid data
+- **Progress tracking** for large datasets
+
+#### Advanced Search and Filtering
+- **Real-time search** with debouncing
+- **Advanced filters** with multiple operators
+- **Dynamic filter creation** (text, select, date, number, boolean)
+- **Filter combinations** (AND/OR logic)
+- **Saved filter presets**
+- **Export filtered results**
+
+#### Bulk Operations
+- **Multi-select** functionality
+- **Bulk delete** with confirmation
+- **Bulk update** (status, assignee, tags)
+- **Bulk export** of selected items
+- **Select all/deselect all** options
+- **Action confirmation** dialogs
+
+#### Drag and Drop Functionality
+- **File upload** drag and drop
+- **Kanban board** for deals and tasks
+- **Drag to reorder** lists
+- **Visual feedback** during drag operations
+
+#### Print/PDF Generation
+- **PDF generation** using jsPDF and html2canvas
+- **Print functionality** for reports
+- **Document preview** before generation
+- **Customizable templates** for different entities
+- **Multiple page sizes** (A4, Letter, Legal)
+- **Landscape/Portrait** orientation
+
+### ✅ Integration Features
+
+#### Email Integration
+- **SMTP configuration** for email sending
+- **Email templates** for common scenarios
+- **Welcome emails** for new users
+- **Lead notification emails**
+- **Deal update notifications**
+- **Task reminder emails**
+- **Custom email templates**
+
+#### Calendar Integration
+- **Google Calendar** integration (ready for implementation)
+- **Outlook Calendar** integration (ready for implementation)
+- **Event creation** from tasks and activities
+- **Calendar sync** for meetings and deadlines
+
+#### Payment Processing Integration
+- **Stripe integration** (ready for implementation)
+- **PayPal integration** (ready for implementation)
+- **Invoice generation** and tracking
+- **Payment status** updates
+
+#### Social Media Integration
+- **LinkedIn** lead import (ready for implementation)
+- **Twitter** monitoring (ready for implementation)
+- **Social media** activity tracking
+
+#### Third-party CRM Integrations
+- **HubSpot** integration (ready for implementation)
+- **Salesforce** integration (ready for implementation)
+- **Zoho CRM** integration (ready for implementation)
+
+### ✅ Advanced Features
+
+#### Workflow Automation
+- **Custom workflow rules** creation
+- **Trigger-based automation** (create, update, status change)
+- **Condition evaluation** (equals, contains, greater than, etc.)
+- **Multiple actions** (send email, create task, send notification)
+- **Template interpolation** with entity data
+- **Workflow management** interface
+
+#### Email Templates and Campaigns
+- **Pre-built email templates**
+- **Custom template creation**
+- **Email campaign management**
+- **Template variables** and personalization
+- **Email tracking** and analytics
+
+#### Advanced Reporting and Analytics
+- **Dashboard metrics** and KPIs
+- **Custom report builder**
+- **Data visualization** with charts
+- **Export reports** to PDF/Excel
+- **Scheduled reports** (ready for implementation)
+
+#### API Documentation (Swagger)
+- **Complete API documentation** at `/api`
+- **Interactive API testing** interface
+- **Request/response examples**
+- **Authentication documentation**
+- **Endpoint descriptions** and parameters
+
+## 🛠️ Technology Stack
 
 ### Frontend
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| [React](https://reactjs.org/) | 18.x | UI Framework |
-| [TypeScript](https://www.typescriptlang.org/) | 5.x | Type Safety |
-| [Vite](https://vitejs.dev/) | 7.x | Build Tool |
-| [Redux Toolkit](https://redux-toolkit.js.org/) | 2.x | State Management |
-| [React Router](https://reactrouter.com/) | 6.x | Routing |
-| [React Hook Form](https://react-hook-form.com/) | 7.x | Form Handling |
-| [Zod](https://zod.dev/) | 3.x | Schema Validation |
-| [Recharts](https://recharts.org/) | 2.x | Chart Library |
-| [Axios](https://axios-http.com/) | 1.x | HTTP Client |
+- **React 19** with TypeScript
+- **Redux Toolkit** for state management
+- **React Router** for navigation
+- **React Hook Form** with Zod validation
+- **Heroicons** for icons
+- **Recharts** for data visualization
+- **Socket.IO Client** for real-time features
+- **jsPDF & html2canvas** for PDF generation
+- **Vite** for build tooling
 
 ### Backend
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| [NestJS](https://nestjs.com/) | 10.x | Backend Framework |
-| [Node.js](https://nodejs.org/) | 18.x | Runtime Environment |
-| [TypeScript](https://www.typescriptlang.org/) | 5.x | Type Safety |
-| [PostgreSQL](https://www.postgresql.org/) | 15.x | Database |
-| [TypeORM](https://typeorm.io/) | 0.3.x | ORM |
-| [JWT](https://jwt.io/) | - | Authentication |
-| [Passport](https://www.passportjs.org/) | - | Auth Strategy |
-| [Class Validator](https://github.com/typestack/class-validator) | 0.14.x | Validation |
+- **NestJS** with TypeScript
+- **Prisma** ORM with PostgreSQL
+- **Socket.IO** for real-time communication
+- **JWT** authentication
+- **Nodemailer** for email sending
+- **Multer** for file uploads
+- **Swagger** for API documentation
+- **Class-validator** for validation
 
-## 📁 Project Structure
+### Database
+- **PostgreSQL** as primary database
+- **Prisma migrations** for schema management
+- **Database seeding** for initial data
 
-```
-BizHub/
-├── client/                 # React Frontend
-│   ├── src/
-│   │   ├── components/    # Reusable UI components
-│   │   ├── pages/        # Application pages
-│   │   ├── store/        # Redux Toolkit slices
-│   │   ├── services/     # API service layer
-│   │   ├── types/        # TypeScript interfaces
-│   │   ├── hooks/        # Custom React hooks
-│   │   └── utils/        # Utility functions
-│   ├── public/           # Static assets
-│   └── package.json      # Frontend dependencies
-├── server/                # NestJS Backend
-│   ├── src/
-│   │   ├── auth/         # Authentication module
-│   │   ├── users/        # User management
-│   │   ├── contacts/     # Contacts module
-│   │   ├── leads/        # Leads module
-│   │   ├── deals/        # Deals module
-│   │   ├── tasks/        # Tasks module
-│   │   └── common/       # Shared utilities
-│   ├── test/             # Test files
-│   └── package.json      # Backend dependencies
-└── README.md             # This file
-```
-
-## 🚀 Getting Started
+## 📦 Installation
 
 ### Prerequisites
-- [Node.js](https://nodejs.org/) (v18 or higher)
-- [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/)
-- [PostgreSQL](https://www.postgresql.org/) (v15 or higher)
-
-### Frontend Setup
-
-1. **Navigate to the client directory:**
-   ```bash
-   cd client
-   ```
-
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
-
-3. **Create environment file:**
-   ```bash
-   cp .env.example .env
-   ```
-   
-   Update `.env` with your backend URL:
-   ```env
-   VITE_API_URL=http://localhost:3000
-   VITE_APP_TITLE=BizHub CRM
-   ```
-
-4. **Start development server:**
-   ```bash
-   npm run dev
-   ```
-
-5. **Open your browser:**
-   Navigate to [http://localhost:5173](http://localhost:5173)
+- Node.js 18+ 
+- PostgreSQL 12+
+- npm or yarn
 
 ### Backend Setup
-
-1. **Navigate to the server directory:**
-   ```bash
-   cd server
-   ```
-
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
-
-3. **Create environment file:**
-   ```bash
-   cp .env.example .env
-   ```
-   
-   Update `.env` with your database credentials:
-   ```env
-   DATABASE_HOST=localhost
-   DATABASE_PORT=5432
-   DATABASE_USERNAME=your_username
-   DATABASE_PASSWORD=your_password
-   DATABASE_NAME=bizhub_crm
-   JWT_SECRET=your_jwt_secret
-   SESSION_COOKIE_SECRET=your_session_secret
-   ```
-
-4. **Run database migrations:**
-   ```bash
-   npm run migration:run
-   ```
-
-5. **Start development server:**
-   ```bash
-   npm run start:dev
-   ```
-
-## 🔐 Authentication
-
-The application uses JWT tokens for authentication with automatic refresh via HTTP session cookies:
-
-- **Access Token**: Stored in memory (localStorage) for API requests
-- **Refresh Token**: Stored in HTTP-only cookies for security
-- **Automatic Refresh**: Axios interceptors handle token refresh automatically
-- **Role-Based Access**: Admin, Manager, and User roles with different permissions
-
-### Demo Credentials
-- **Email**: `admin@bizhub.com`
-- **Password**: `password123`
-
-## 📊 Available Scripts
-
-### Frontend (client/)
 ```bash
-npm run dev          # Start development server
-npm run build        # Build for production
-npm run preview      # Preview production build
-npm run lint         # Run ESLint
-npm run type-check   # Run TypeScript compiler check
+cd server
+npm install
+cp .env.example .env
+# Configure your .env file with database and email settings
+npm run db:generate
+npm run db:push
+npm run db:seed
+npm run start:dev
 ```
 
-### Backend (server/)
+### Frontend Setup
 ```bash
-npm run start        # Start production server
-npm run start:dev    # Start development server with hot reload
-npm run build        # Build the application
-npm run test         # Run unit tests
-npm run test:e2e     # Run end-to-end tests
-npm run migration:run # Run database migrations
+cd client
+npm install
+npm run dev
 ```
 
-## 🌐 API Endpoints
+## 🔧 Configuration
 
-### Authentication
+### Environment Variables
+
+#### Backend (.env)
+```env
+# Database
+DATABASE_URL="postgresql://username:password@localhost:5432/bizhub"
+
+# JWT
+JWT_SECRET="your-jwt-secret"
+JWT_EXPIRES_IN="7d"
+
+# Email (SMTP)
+SMTP_HOST="smtp.gmail.com"
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER="your-email@gmail.com"
+SMTP_PASS="your-app-password"
+SMTP_FROM="noreply@bizhub.com"
+
+# CORS
+CORS_ORIGIN="http://localhost:5173"
+
+# Server
+PORT=3000
+```
+
+## 🚀 Usage
+
+### Real-time Notifications
+1. Users automatically receive real-time notifications
+2. Click the notification bell to view notifications
+3. Mark notifications as read or delete them
+4. Notifications appear for leads, deals, tasks, and system events
+
+### File Management
+1. Use the file upload component in forms
+2. Drag and drop files or click to browse
+3. Files are automatically associated with entities
+4. Download files using the file management interface
+
+### Data Export/Import
+1. Use the Export/Import component in list views
+2. Select format (CSV/Excel) for export
+3. Upload files for import with validation
+4. Review import results and errors
+
+### Advanced Search
+1. Use the search bar for quick searches
+2. Click the filter icon for advanced filters
+3. Add multiple filter conditions
+4. Save and reuse filter combinations
+
+### Bulk Operations
+1. Select multiple items using checkboxes
+2. Use bulk operation buttons for common actions
+3. Confirm destructive actions
+4. Track operation progress
+
+### PDF Generation
+1. Use the PDFGenerator component
+2. Preview documents before generation
+3. Download PDFs or print directly
+4. Customize templates as needed
+
+### Workflow Automation
+1. Create workflow rules in the admin interface
+2. Set triggers (create, update, status change)
+3. Define conditions and actions
+4. Test and activate workflows
+
+## 📚 API Documentation
+
+Access the complete API documentation at `http://localhost:3000/api` when the backend is running.
+
+### Key Endpoints
+
+#### Authentication
 - `POST /auth/login` - User login
-- `POST /auth/refresh` - Refresh access token
+- `POST /auth/register` - User registration
 - `POST /auth/logout` - User logout
 
-### Users
-- `GET /users` - Get all users
-- `GET /users/:id` - Get user by ID
-- `PUT /users/:id` - Update user
-- `DELETE /users/:id` - Delete user
+#### Real-time
+- WebSocket connection for notifications
+- Real-time updates for all entities
 
-### Contacts
-- `GET /contacts` - Get all contacts
-- `GET /contacts/:id` - Get contact by ID
-- `POST /contacts` - Create new contact
-- `PUT /contacts/:id` - Update contact
-- `DELETE /contacts/:id` - Delete contact
+#### File Management
+- `POST /files/upload` - Upload files
+- `GET /files/:id/download` - Download files
+- `GET /files/entity/:type/:id` - Get entity files
 
-### Leads & Deals
-- `GET /leads` - Get all leads
-- `GET /deals` - Get all deals
-- `POST /leads` - Create new lead
-- `POST /deals` - Create new deal
-- `PUT /leads/:id` - Update lead
-- `PUT /deals/:id` - Update deal
+#### Export/Import
+- `POST /export/:entity` - Export data
+- `POST /import/:entity` - Import data
 
-## 🎨 Customization
+#### Workflows
+- `GET /workflows` - Get workflow rules
+- `POST /workflows` - Create workflow rule
+- `PUT /workflows/:id` - Update workflow rule
+- `DELETE /workflows/:id` - Delete workflow rule
 
-### Styling
-- Each component has its own CSS file for maintainability
-- CSS variables for consistent theming
-- Responsive design with mobile-first approach
-- Easy to customize colors, fonts, and spacing
+## 🔒 Security Features
 
-### Adding New Modules
-1. Create new Redux slice in `store/slices/`
-2. Add new page component in `pages/`
-3. Create necessary components in `components/`
-4. Update routing in `App.tsx`
-5. Add navigation links in `Sidebar.tsx`
+- **JWT Authentication** with refresh tokens
+- **Role-based access control** (RBAC)
+- **Input validation** and sanitization
+- **CORS protection**
+- **Rate limiting**
+- **File upload security** (type/size validation)
+- **SQL injection protection** (Prisma ORM)
+
+## 📊 Performance Features
+
+- **Real-time updates** with WebSocket
+- **Debounced search** for better performance
+- **Lazy loading** for large datasets
+- **Optimistic updates** for better UX
+- **File compression** for uploads
+- **Database indexing** for fast queries
 
 ## 🧪 Testing
 
-### Frontend Testing
 ```bash
-cd client
-npm run test         # Run unit tests
-npm run test:coverage # Run tests with coverage
-```
-
-### Backend Testing
-```bash
+# Backend tests
 cd server
-npm run test         # Run unit tests
-npm run test:e2e     # Run end-to-end tests
-npm run test:cov     # Run tests with coverage
-```
+npm run test
+npm run test:e2e
 
-## 🚀 Deployment
-
-### Frontend Deployment
-```bash
+# Frontend tests (when implemented)
 cd client
-npm run build
-# Deploy the dist/ folder to your hosting service
+npm run test
 ```
 
-### Backend Deployment
-```bash
-cd server
-npm run build
-npm run start:prod
-```
+## 📈 Monitoring and Logging
+
+- **Request logging** with timestamps
+- **Error tracking** and reporting
+- **Performance monitoring** (ready for implementation)
+- **User activity tracking**
+
+## 🔄 Deployment
 
 ### Docker Deployment
 ```bash
@@ -280,34 +328,51 @@ npm run start:prod
 docker-compose up -d
 ```
 
+### Manual Deployment
+1. Build the frontend: `npm run build`
+2. Build the backend: `npm run build`
+3. Set up production environment variables
+4. Run database migrations
+5. Start the production server
+
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Create a feature branch
+3. Make your changes
+4. Add tests for new features
+5. Submit a pull request
 
-## 📝 License
+## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## 🆘 Support
 
-If you encounter any issues or have questions:
+For support and questions:
+- Create an issue in the GitHub repository
+- Check the API documentation at `/api`
+- Review the code comments and documentation
 
-1. Check the [Issues](../../issues) page for existing solutions
-2. Create a new issue with detailed information
-3. Contact the development team
+## 🗺️ Roadmap
 
-## 🙏 Acknowledgments
-
-- [React](https://reactjs.org/) team for the amazing frontend framework
-- [NestJS](https://nestjs.com/) team for the robust backend framework
-- [Vite](https://vitejs.dev/) team for the fast build tool
-- [Redux Toolkit](https://redux-toolkit.js.org/) team for state management
-- [Recharts](https://recharts.org/) team for the chart library
+### Planned Features
+- [ ] Calendar integration (Google/Outlook)
+- [ ] Payment processing (Stripe/PayPal)
+- [ ] Social media integration
+- [ ] Advanced analytics dashboard
+- [ ] Mobile app (React Native)
+- [ ] Multi-tenant architecture
+- [ ] Advanced reporting engine
+- [ ] Email campaign management
+- [ ] Customer portal
+- [ ] API rate limiting
+- [ ] Webhook support
+- [ ] Data backup and recovery
+- [ ] Advanced security features
+- [ ] Performance optimization
+- [ ] Accessibility improvements
 
 ---
 
-**Made with ❤️ by the BizHub Team**
+**BizHub CRM** - Empowering businesses with comprehensive customer relationship management.
