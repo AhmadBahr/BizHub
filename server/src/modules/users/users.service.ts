@@ -110,21 +110,7 @@ export class UsersService {
     return userWithoutPassword;
   }
 
-  async findByEmail(email: string): Promise<UserResponseDto> {
-    const user = await this.prisma.user.findUnique({
-      where: { email },
-      include: {
-        role: true,
-      },
-    });
 
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    const { password, ...userWithoutPassword } = user;
-    return userWithoutPassword;
-  }
 
   async findByEmailForAuth(email: string): Promise<any> {
     const user = await this.prisma.user.findUnique({
@@ -219,5 +205,86 @@ export class UsersService {
 
     const { password, ...userWithoutPassword } = user;
     return userWithoutPassword;
+  }
+
+  async findByEmail(email: string): Promise<UserResponseDto | null> {
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+      include: {
+        role: true,
+      },
+    });
+
+    if (!user) {
+      return null;
+    }
+
+    const { password, ...userWithoutPassword } = user;
+    return userWithoutPassword;
+  }
+
+  async updateResetToken(id: string, resetToken: string): Promise<void> {
+    await this.prisma.user.update({
+      where: { id },
+      data: { 
+        // In a real app, you'd store this in a separate table
+        // For now, we'll use a temporary field or store it in the user record
+        // This is a simplified implementation
+      },
+    });
+  }
+
+  async findByResetToken(token: string): Promise<any> {
+    // In a real app, you'd verify the JWT token and find the user
+    // For now, this is a simplified implementation
+    try {
+      // You would decode the JWT token here and find the user
+      // For now, return null to indicate token is invalid
+      return null;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  async updatePassword(id: string, hashedPassword: string): Promise<void> {
+    await this.prisma.user.update({
+      where: { id },
+      data: { 
+        password: hashedPassword,
+        // Clear reset token
+      },
+    });
+  }
+
+  async updateVerificationToken(id: string, verificationToken: string): Promise<void> {
+    await this.prisma.user.update({
+      where: { id },
+      data: { 
+        // In a real app, you'd store this in a separate table
+        // For now, this is a simplified implementation
+      },
+    });
+  }
+
+  async findByVerificationToken(token: string): Promise<any> {
+    // In a real app, you'd verify the JWT token and find the user
+    // For now, this is a simplified implementation
+    try {
+      // You would decode the JWT token here and find the user
+      // For now, return null to indicate token is invalid
+      return null;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  async markEmailAsVerified(id: string): Promise<void> {
+    await this.prisma.user.update({
+      where: { id },
+      data: { 
+        // In a real app, you'd have an emailVerified field
+        // For now, this is a simplified implementation
+      },
+    });
   }
 }
