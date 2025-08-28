@@ -1,0 +1,61 @@
+.contacts-page {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.contacts-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-xl);
+  gap: var(--spacing-lg);
+}
+
+.contacts-title-section {
+  flex: 1;
+}
+
+.contacts-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-sm) 0;
+}
+
+.contacts-subtitle {
+  font-size: 1.125rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .contacts-page {
+    padding: 0 var(--spacing-sm);
+  }
+  
+  .contacts-header {
+    flex-direction: column;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+  }
+  
+  .contacts-title {
+    font-size: 1.75rem;
+  }
+  
+  .contacts-subtitle {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .contacts-title {
+    font-size: 1.5rem;
+  }
+}
+
+
+
+
+
