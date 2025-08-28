@@ -9,7 +9,8 @@ import {
   Query, 
   UseGuards,
   HttpCode,
-  HttpStatus 
+  HttpStatus,
+  Request
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { LeadsService } from './leads.service';
@@ -34,8 +35,8 @@ export class LeadsController {
   })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 404, description: 'Contact or user not found' })
-  async create(@Body() createLeadDto: CreateLeadDto): Promise<LeadResponseDto> {
-    return this.leadsService.create(createLeadDto);
+  async create(@Body() createLeadDto: CreateLeadDto, @Request() req): Promise<LeadResponseDto> {
+    return this.leadsService.create(createLeadDto, req.user.id);
   }
 
   @Get()
