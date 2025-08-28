@@ -1,0 +1,152 @@
+.dashboard {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.dashboard-header {
+  margin-bottom: var(--spacing-xl);
+}
+
+.dashboard-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-sm) 0;
+}
+
+.dashboard-subtitle {
+  font-size: 1.125rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.dashboard-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: var(--spacing-md);
+}
+
+.dashboard-loading p {
+  color: var(--text-secondary);
+  font-size: 1.125rem;
+}
+
+/* Metrics Grid */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+/* Charts Section */
+.charts-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+.chart-container {
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.chart-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-md) 0;
+}
+
+/* Dashboard Bottom */
+.dashboard-bottom {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-md) 0;
+}
+
+.recent-activities-section,
+.top-deals-section {
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .dashboard {
+    padding: 0 var(--spacing-sm);
+  }
+  
+  .dashboard-title {
+    font-size: 1.75rem;
+  }
+  
+  .dashboard-subtitle {
+    font-size: 1rem;
+  }
+  
+  .metrics-grid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+  }
+  
+  .charts-section {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+  }
+  
+  .dashboard-bottom {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+  }
+  
+  .chart-container,
+  .recent-activities-section,
+  .top-deals-section {
+    padding: var(--spacing-md);
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-header {
+    margin-bottom: var(--spacing-lg);
+  }
+  
+  .dashboard-title {
+    font-size: 1.5rem;
+  }
+  
+  .metrics-grid {
+    gap: var(--spacing-sm);
+  }
+  
+  .charts-section {
+    gap: var(--spacing-sm);
+  }
+  
+  .dashboard-bottom {
+    gap: var(--spacing-sm);
+  }
+}
+
+
+
+
+
