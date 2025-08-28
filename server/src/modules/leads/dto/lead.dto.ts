@@ -23,6 +23,35 @@ export enum LeadSource {
 }
 
 export class CreateLeadDto {
+  @ApiProperty({ example: 'John' })
+  @IsString()
+  @MinLength(2)
+  firstName: string;
+
+  @ApiProperty({ example: 'Doe' })
+  @IsString()
+  @MinLength(2)
+  lastName: string;
+
+  @ApiProperty({ example: 'john.doe@example.com' })
+  @IsString()
+  email: string;
+
+  @ApiProperty({ example: '+1-555-0123', required: false })
+  @IsOptional()
+  @IsString()
+  phone?: string;
+
+  @ApiProperty({ example: 'Acme Corp', required: false })
+  @IsOptional()
+  @IsString()
+  company?: string;
+
+  @ApiProperty({ example: 'Manager', required: false })
+  @IsOptional()
+  @IsString()
+  position?: string;
+
   @ApiProperty({ example: 'Enterprise CRM Implementation' })
   @IsString()
   @MinLength(3)
