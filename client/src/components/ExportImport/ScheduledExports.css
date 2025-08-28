@@ -1,0 +1,441 @@
+/* Scheduled Exports Styles */
+
+.scheduled-exports-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.scheduled-exports-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.scheduled-exports-title {
+  display: flex;
+  align-items: center;
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 64px 24px;
+  background: white;
+  border-radius: 12px;
+  border: 2px dashed #e5e7eb;
+}
+
+.empty-state h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #374151;
+  margin: 16px 0 8px 0;
+}
+
+.empty-state p {
+  color: #6b7280;
+  margin-bottom: 24px;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Loading State */
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 24px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e5e7eb;
+  border-top: 4px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Scheduled Exports List */
+.scheduled-exports-list {
+  display: grid;
+  gap: 20px;
+}
+
+.scheduled-export-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.scheduled-export-card:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.scheduled-export-card.active {
+  border-left: 4px solid #10b981;
+}
+
+.scheduled-export-card.inactive {
+  border-left: 4px solid #6b7280;
+  opacity: 0.7;
+}
+
+.export-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.export-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+}
+
+.export-icon {
+  font-size: 2rem;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f3f4f6;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.export-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.export-name {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 4px 0;
+  line-height: 1.4;
+}
+
+.export-description {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin: 0 0 8px 0;
+  line-height: 1.4;
+}
+
+.export-meta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.export-format,
+.export-schedule {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.export-format {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.export-schedule {
+  background: #f3e8ff;
+  color: #7c3aed;
+}
+
+.export-status {
+  flex-shrink: 0;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.status-badge.active {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-badge.inactive {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.export-card-body {
+  padding: 20px;
+}
+
+.export-schedule-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.schedule-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.schedule-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.schedule-value {
+  font-size: 0.875rem;
+  color: #374151;
+  font-weight: 500;
+}
+
+.export-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-content h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 16px 0;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .scheduled-exports-container {
+    padding: 16px;
+  }
+
+  .scheduled-exports-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .scheduled-exports-title {
+    font-size: 1.5rem;
+  }
+
+  .export-card-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .export-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .export-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.5rem;
+  }
+
+  .export-meta {
+    gap: 8px;
+  }
+
+  .export-schedule-info {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .export-actions {
+    flex-direction: column;
+  }
+
+  .export-actions button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .scheduled-exports-container {
+    padding: 12px;
+  }
+
+  .export-card-header,
+  .export-card-body {
+    padding: 16px;
+  }
+
+  .export-name {
+    font-size: 1rem;
+  }
+
+  .export-description {
+    font-size: 0.8125rem;
+  }
+
+  .modal-content {
+    padding: 20px;
+    margin: 16px;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .scheduled-exports-title {
+    color: #f9fafb;
+  }
+
+  .empty-state {
+    background: #1f2937;
+    border-color: #374151;
+  }
+
+  .empty-state h3 {
+    color: #f9fafb;
+  }
+
+  .empty-state p {
+    color: #d1d5db;
+  }
+
+  .scheduled-export-card {
+    background: #1f2937;
+    border-color: #374151;
+  }
+
+  .export-card-header {
+    border-bottom-color: #374151;
+  }
+
+  .export-name {
+    color: #f9fafb;
+  }
+
+  .export-description {
+    color: #9ca3af;
+  }
+
+  .schedule-label {
+    color: #9ca3af;
+  }
+
+  .schedule-value {
+    color: #d1d5db;
+  }
+
+  .export-icon {
+    background: #374151;
+  }
+
+  .modal-content {
+    background: #1f2937;
+  }
+
+  .modal-content h3 {
+    color: #f9fafb;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .scheduled-export-card {
+    border-width: 2px;
+  }
+
+  .scheduled-export-card.active {
+    border-left-width: 6px;
+  }
+
+  .scheduled-export-card.inactive {
+    border-left-width: 6px;
+  }
+
+  .status-badge {
+    border: 1px solid currentColor;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .scheduled-export-card,
+  .spinner {
+    transition: none;
+    animation: none;
+  }
+
+  .scheduled-export-card:hover {
+    transform: none;
+  }
+}
