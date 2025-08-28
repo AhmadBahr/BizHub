@@ -7,10 +7,10 @@ import { PaginationResponseDto } from '../../common/dto/pagination.dto';
 export class ContactsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createContactDto: CreateContactDto): Promise<ContactResponseDto> {
+  async create(createContactDto: CreateContactDto, userId: string): Promise<ContactResponseDto> {
     // Check if contact already exists
     const existingContact = await this.prisma.contact.findFirst({
-      where: { email: createContactDto.email },
+      where: { email: createContactDto.email, userId },
     });
 
     if (existingContact) {
@@ -18,17 +18,20 @@ export class ContactsService {
     }
 
     const contact = await this.prisma.contact.create({
-      data: createContactDto,
+      data: {
+        ...createContactDto,
+        userId,
+      },
     });
 
     return contact;
   }
 
-  async findAll(query: ContactQueryDto): Promise<PaginationResponseDto> {
+  async findAll(query: ContactQueryDto, userId: string): Promise<PaginationResponseDto> {
     const { page = 1, limit = 10, search, company, tags, isActive } = query;
     const skip = (page - 1) * limit;
 
-    const where: any = {};
+    const where: any = { userId };
 
     if (search) {
       where.OR = [
@@ -78,9 +81,9 @@ export class ContactsService {
     };
   }
 
-  async findById(id: string): Promise<ContactResponseDto> {
-    const contact = await this.prisma.contact.findUnique({
-      where: { id },
+  async findById(id: string, userId: string): Promise<ContactResponseDto> {
+    const contact = await this.prisma.contact.findFirst({
+      where: { id, userId },
     });
 
     if (!contact) {
@@ -90,10 +93,10 @@ export class ContactsService {
     return contact;
   }
 
-  async update(id: string, updateContactDto: UpdateContactDto): Promise<ContactResponseDto> {
+  async update(id: string, updateContactDto: UpdateContactDto, userId: string): Promise<ContactResponseDto> {
     // Check if contact exists
-    const existingContact = await this.prisma.contact.findUnique({
-      where: { id },
+    const existingContact = await this.prisma.contact.findFirst({
+      where: { id, userId },
     });
 
     if (!existingContact) {
@@ -103,7 +106,7 @@ export class ContactsService {
     // If updating email, check if it's already taken by another contact
     if (updateContactDto.email && updateContactDto.email !== existingContact.email) {
       const emailExists = await this.prisma.contact.findFirst({
-        where: { email: updateContactDto.email },
+        where: { email: updateContactDto.email, userId },
       });
 
       if (emailExists) {
@@ -119,9 +122,9 @@ export class ContactsService {
     return contact;
   }
 
-  async remove(id: string): Promise<void> {
-    const contact = await this.prisma.contact.findUnique({
-      where: { id },
+  async remove(id: string, userId: string): Promise<void> {
+    const contact = await this.prisma.contact.findFirst({
+      where: { id, userId },
     });
 
     if (!contact) {
