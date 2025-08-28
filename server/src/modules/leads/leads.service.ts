@@ -7,10 +7,10 @@ import { PaginationResponseDto } from '../../common/dto/pagination.dto';
 export class LeadsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createLeadDto: CreateLeadDto): Promise<LeadResponseDto> {
+  async create(createLeadDto: CreateLeadDto, userId: string): Promise<LeadResponseDto> {
     // Verify contact exists
-    const contact = await this.prisma.contact.findUnique({
-      where: { id: createLeadDto.contactId },
+    const contact = await this.prisma.contact.findFirst({
+      where: { id: createLeadDto.contactId, userId },
     });
 
     if (!contact) {
@@ -28,8 +28,15 @@ export class LeadsService {
       }
     }
 
+    const { contactId, assignedToId, ...leadData } = createLeadDto;
+    
     const lead = await this.prisma.lead.create({
-      data: createLeadDto,
+      data: {
+        ...leadData,
+        user: { connect: { id: userId } },
+        contact: contactId ? { connect: { id: contactId } } : undefined,
+        assignedTo: assignedToId ? { connect: { id: assignedToId } } : undefined,
+      },
       include: {
         contact: {
           select: {
@@ -56,6 +63,7 @@ export class LeadsService {
       value: Number(lead.value),
       status: lead.status as any,
       source: lead.source as any,
+      contact: lead.contact,
     };
   }
 
