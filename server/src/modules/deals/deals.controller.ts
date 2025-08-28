@@ -8,6 +8,7 @@ import {
   Delete,
   Query,
   UseGuards,
+  Request,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { DealsService } from './deals.service';
@@ -25,8 +26,8 @@ export class DealsController {
   @ApiOperation({ summary: 'Create a new deal' })
   @ApiResponse({ status: 201, description: 'Deal created successfully', type: DealResponseDto })
   @ApiResponse({ status: 400, description: 'Bad request' })
-  create(@Body() createDealDto: CreateDealDto): Promise<DealResponseDto> {
-    return this.dealsService.create(createDealDto);
+  create(@Body() createDealDto: CreateDealDto, @Request() req): Promise<DealResponseDto> {
+    return this.dealsService.create(createDealDto, req.user.id);
   }
 
   @Get()
