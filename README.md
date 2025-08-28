@@ -2,7 +2,6 @@
 
 # BizHub CRM
 
-[![CI](https://img.shields.io/github/actions/workflow/status/your-org/bizhub/ci.yml?label=CI&logo=github)](https://github.com/your-org/bizhub/actions)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-18%2B-61DAFB?logo=react&logoColor=000)](https://react.dev/)
 [![NestJS](https://img.shields.io/badge/NestJS-10%2B-E0234E?logo=nestjs&logoColor=white)](https://nestjs.com/)
