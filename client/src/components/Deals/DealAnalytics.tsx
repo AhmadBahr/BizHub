@@ -1,46 +1,55 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { apiService } from '../../services';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import './DealAnalytics.css';
 
 interface DealAnalyticsProps {
   // This would typically receive analytics data from props
-  // For now, we'll use mock data
+  // For now, we'll use real API data
 }
 
 const DealAnalytics: React.FC<DealAnalyticsProps> = () => {
-  // Mock data - in a real app, this would come from the backend
-  const analyticsData = {
-    totalDeals: 89,
-    totalValue: 2450000,
-    wonDeals: 34,
-    lostDeals: 12,
-    activeDeals: 43,
-    conversionRate: 73.9,
-    averageDealSize: 27528,
-    averageSalesCycle: 45,
-    stageDistribution: [
-      { stage: 'Prospecting', count: 15, value: 180000, color: '#3b82f6' },
-      { stage: 'Qualification', count: 18, value: 320000, color: '#8b5cf6' },
-      { stage: 'Proposal', count: 12, value: 450000, color: '#f59e0b' },
-      { stage: 'Negotiation', count: 8, value: 380000, color: '#ec4899' },
-      { stage: 'Closed Won', count: 34, value: 1120000, color: '#10b981' },
-      { stage: 'Closed Lost', count: 12, value: 0, color: '#6b7280' }
-    ],
-    monthlyRevenue: [
-      { month: 'Jan', revenue: 180000, deals: 8 },
-      { month: 'Feb', revenue: 220000, deals: 12 },
-      { month: 'Mar', revenue: 195000, deals: 10 },
-      { month: 'Apr', revenue: 280000, deals: 15 },
-      { month: 'May', revenue: 320000, deals: 18 },
-      { month: 'Jun', revenue: 275000, deals: 14 }
-    ],
-    topPerformers: [
-      { name: 'Sarah Johnson', deals: 12, value: 450000, avatar: '👩‍💼' },
-      { name: 'Mike Chen', deals: 10, value: 380000, avatar: '👨‍💼' },
-      { name: 'Emily Davis', deals: 8, value: 320000, avatar: '👩‍💼' },
-      { name: 'David Wilson', deals: 7, value: 280000, avatar: '👨‍💼' }
-    ]
+  const [analyticsData, setAnalyticsData] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    loadAnalytics();
+  }, []);
+
+  const loadAnalytics = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await apiService.get('/deals/analytics');
+      if (response.success) {
+        setAnalyticsData(response.data);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load analytics');
+      console.error('Error loading deal analytics:', err);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  // Default data structure while loading
+  const defaultData = {
+    totalDeals: 0,
+    totalValue: 0,
+    wonDeals: 0,
+    lostDeals: 0,
+    activeDeals: 0,
+    conversionRate: 0,
+    averageDealSize: 0,
+    averageSalesCycle: 0,
+    stageDistribution: [],
+    monthlyRevenue: [],
+    topPerformers: []
+  };
+
+    const data = analyticsData || defaultData;
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -50,6 +59,28 @@ const DealAnalytics: React.FC<DealAnalyticsProps> = () => {
       maximumFractionDigits: 0,
     }).format(value);
   };
+
+  if (loading) {
+    return (
+      <div className="deal-analytics">
+        <div className="analytics-header">
+          <h3>Deal Analytics</h3>
+          <p>Loading analytics data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="deal-analytics">
+        <div className="analytics-header">
+          <h3>Deal Analytics</h3>
+          <p>Error: {error}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="deal-analytics">
