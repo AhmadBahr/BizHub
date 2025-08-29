@@ -42,7 +42,6 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
       });
     }
     // Load invoices
-    // loadInvoices();
   }, [payment]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
