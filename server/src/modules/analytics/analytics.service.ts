@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class AnalyticsService {
@@ -26,19 +26,19 @@ export class AnalyticsService {
       
       // Won deals count
       this.prisma.deal.count({
-        where: { status: 'Closed Won' }
+        where: { status: 'CLOSED_WON' }
       }),
       
       // Lost deals count
       this.prisma.deal.count({
-        where: { status: 'Closed Lost' }
+        where: { status: 'CLOSED_LOST' }
       }),
       
       // Active deals count
       this.prisma.deal.count({
         where: {
           status: {
-            in: ['Prospecting', 'Qualification', 'Proposal', 'Negotiation']
+            in: ['OPPORTUNITY', 'PROPOSAL', 'NEGOTIATION']
           }
         }
       }),
@@ -53,7 +53,7 @@ export class AnalyticsService {
       // Monthly revenue (last 6 months)
       this.prisma.deal.findMany({
         where: {
-          status: 'Closed Won',
+          status: 'CLOSED_WON',
           actualCloseDate: {
             gte: new Date(new Date().getFullYear(), new Date().getMonth() - 5, 1)
           }
@@ -70,7 +70,7 @@ export class AnalyticsService {
         _count: { id: true },
         _sum: { value: true },
         where: {
-          status: 'Closed Won',
+          status: 'CLOSED_WON',
           actualCloseDate: {
             gte: new Date(new Date().getFullYear(), 0, 1) // This year
           }
@@ -82,7 +82,7 @@ export class AnalyticsService {
     const conversionRate = totalDeals > 0 ? (wonDeals / totalDeals) * 100 : 0;
     
     // Calculate average deal size
-    const averageDealSize = totalDeals > 0 ? (totalValue._sum.value || 0) / totalDeals : 0;
+    const averageDealSize = totalDeals > 0 ? Number(totalValue._sum.value || 0) / totalDeals : 0;
 
     // Process stage distribution
     const processedStageDistribution = stageDistribution.map(stage => ({
@@ -96,7 +96,7 @@ export class AnalyticsService {
     const monthlyRevenueMap = new Map<string, number>();
     monthlyRevenue.forEach(deal => {
       const month = deal.actualCloseDate.toLocaleString('en-US', { month: 'short' });
-      monthlyRevenueMap.set(month, (monthlyRevenueMap.get(month) || 0) + (deal.value || 0));
+      monthlyRevenueMap.set(month, (monthlyRevenueMap.get(month) || 0) + Number(deal.value || 0));
     });
 
     const processedMonthlyRevenue = Array.from(monthlyRevenueMap.entries()).map(([month, revenue]) => ({
@@ -147,21 +147,21 @@ export class AnalyticsService {
       statusDistribution,
       weeklyCompletion,
       topPerformers,
-      categoryBreakdown
+      priorityBreakdown
     ] = await Promise.all([
       // Total tasks count
       this.prisma.task.count(),
       
       // Completed tasks count
       this.prisma.task.count({
-        where: { status: 'Completed' }
+        where: { status: 'COMPLETED' }
       }),
       
       // Pending tasks count
       this.prisma.task.count({
         where: {
           status: {
-            in: ['Not Started', 'In Progress', 'Under Review']
+            in: ['PENDING', 'IN_PROGRESS']
           }
         }
       }),
@@ -171,7 +171,7 @@ export class AnalyticsService {
         where: {
           dueDate: { lt: new Date() },
           status: {
-            notIn: ['Completed', 'Cancelled']
+            notIn: ['COMPLETED', 'CANCELLED']
           }
         }
       }),
@@ -204,16 +204,16 @@ export class AnalyticsService {
         by: ['assignedToId'],
         _count: { id: true },
         where: {
-          status: 'Completed',
+          status: 'COMPLETED',
           updatedAt: {
             gte: new Date(new Date().getFullYear(), 0, 1) // This year
           }
         }
       }),
       
-      // Category breakdown
+      // Priority breakdown (using priority instead of category)
       this.prisma.task.groupBy({
-        by: ['category'],
+        by: ['priority'],
         _count: { id: true }
       })
     ]);
@@ -264,11 +264,11 @@ export class AnalyticsService {
       })
     );
 
-    // Process category breakdown
-    const processedCategoryBreakdown = categoryBreakdown.map(category => ({
-      category: category.category || 'General',
-      count: category._count.id,
-      percentage: totalTasks > 0 ? Math.round((category._count.id / totalTasks) * 100 * 10) / 10 : 0
+    // Process priority breakdown
+    const processedPriorityBreakdown = priorityBreakdown.map(priority => ({
+      priority: priority.priority,
+      count: priority._count.id,
+      percentage: totalTasks > 0 ? Math.round((priority._count.id / totalTasks) * 100 * 10) / 10 : 0
     }));
 
     return {
@@ -282,7 +282,7 @@ export class AnalyticsService {
       statusDistribution: processedStatusDistribution,
       weeklyCompletion: weeklyCompletionData,
       topPerformers: topPerformersWithDetails,
-      categoryBreakdown: processedCategoryBreakdown
+      priorityBreakdown: processedPriorityBreakdown
     };
   }
 
@@ -303,14 +303,14 @@ export class AnalyticsService {
       this.prisma.lead.count({
         where: {
           status: {
-            in: ['New', 'Contacted', 'Qualified', 'Proposal', 'Negotiation']
+            in: ['NEW', 'CONTACTED', 'QUALIFIED', 'PROPOSAL', 'NEGOTIATION']
           }
         }
       }),
       
       // Converted leads count
       this.prisma.lead.count({
-        where: { status: 'Closed Won' }
+        where: { status: 'CLOSED_WON' }
       }),
       
       // Source distribution
@@ -392,33 +392,31 @@ export class AnalyticsService {
 
   private getStageColor(stage: string): string {
     const colors: Record<string, string> = {
-      'Prospecting': '#3b82f6',
-      'Qualification': '#8b5cf6',
-      'Proposal': '#f59e0b',
-      'Negotiation': '#ec4899',
-      'Closed Won': '#10b981',
-      'Closed Lost': '#6b7280'
+      'OPPORTUNITY': '#3b82f6',
+      'PROPOSAL': '#8b5cf6',
+      'NEGOTIATION': '#f59e0b',
+      'CLOSED_WON': '#10b981',
+              'CLOSED_LOST': '#6b7280'
     };
     return colors[stage] || '#6b7280';
   }
 
   private getPriorityColor(priority: string): string {
     const colors: Record<string, string> = {
-      'Low': '#10b981',
-      'Medium': '#f59e0b',
-      'High': '#f97316',
-      'Urgent': '#ef4444'
+      'LOW': '#10b981',
+      'MEDIUM': '#f59e0b',
+      'HIGH': '#f97316',
+      'URGENT': '#ef4444'
     };
     return colors[priority] || '#6b7280';
   }
 
   private getStatusColor(status: string): string {
     const colors: Record<string, string> = {
-      'Not Started': '#6b7280',
-      'In Progress': '#3b82f6',
-      'Under Review': '#8b5cf6',
-      'Completed': '#10b981',
-      'Cancelled': '#ef4444'
+      'PENDING': '#6b7280',
+      'IN_PROGRESS': '#3b82f6',
+      'COMPLETED': '#10b981',
+      'CANCELLED': '#ef4444'
     };
     return colors[status] || '#6b7280';
   }
