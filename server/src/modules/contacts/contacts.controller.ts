@@ -9,7 +9,8 @@ import {
   Query, 
   UseGuards,
   HttpCode,
-  HttpStatus 
+  HttpStatus,
+  Request
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { ContactsService } from './contacts.service';
@@ -34,8 +35,8 @@ export class ContactsController {
   })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 409, description: 'Contact already exists' })
-  async create(@Body() createContactDto: CreateContactDto): Promise<ContactResponseDto> {
-    return this.contactsService.create(createContactDto);
+  async create(@Body() createContactDto: CreateContactDto, @Request() req): Promise<ContactResponseDto> {
+    return this.contactsService.create(createContactDto, req.user.id);
   }
 
   @Get()
@@ -46,8 +47,8 @@ export class ContactsController {
     description: 'Contacts retrieved successfully', 
     type: PaginationResponseDto 
   })
-  async findAll(@Query() query: ContactQueryDto): Promise<PaginationResponseDto> {
-    return this.contactsService.findAll(query);
+  async findAll(@Query() query: ContactQueryDto, @Request() req): Promise<PaginationResponseDto> {
+    return this.contactsService.findAll(query, req.user.id);
   }
 
   @Get('stats')
@@ -71,8 +72,8 @@ export class ContactsController {
     type: ContactResponseDto 
   })
   @ApiResponse({ status: 404, description: 'Contact not found' })
-  async findOne(@Param('id') id: string): Promise<ContactResponseDto> {
-    return this.contactsService.findById(id);
+  async findOne(@Param('id') id: string, @Request() req): Promise<ContactResponseDto> {
+    return this.contactsService.findById(id, req.user.id);
   }
 
   @Patch(':id')
@@ -87,9 +88,10 @@ export class ContactsController {
   @ApiResponse({ status: 404, description: 'Contact not found' })
   async update(
     @Param('id') id: string, 
-    @Body() updateContactDto: UpdateContactDto
+    @Body() updateContactDto: UpdateContactDto,
+    @Request() req
   ): Promise<ContactResponseDto> {
-    return this.contactsService.update(id, updateContactDto);
+    return this.contactsService.update(id, updateContactDto, req.user.id);
   }
 
   @Delete(':id')
@@ -98,8 +100,8 @@ export class ContactsController {
   @ApiParam({ name: 'id', description: 'Contact ID' })
   @ApiResponse({ status: 204, description: 'Contact deleted successfully' })
   @ApiResponse({ status: 404, description: 'Contact not found' })
-  async remove(@Param('id') id: string): Promise<void> {
-    return this.contactsService.remove(id);
+  async remove(@Param('id') id: string, @Request() req): Promise<void> {
+    return this.contactsService.remove(id, req.user.id);
   }
 
   @Patch(':id/deactivate')
