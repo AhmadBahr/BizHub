@@ -1,0 +1,284 @@
+.invoice-list {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.invoices-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.invoices-table th {
+  background: #f8f9fa;
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+  color: #495057;
+  border-bottom: 1px solid #dee2e6;
+  white-space: nowrap;
+}
+
+.invoices-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f1f3f4;
+  vertical-align: top;
+}
+
+.invoices-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.invoice-number {
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+  color: #495057;
+}
+
+.invoice-title {
+  max-width: 250px;
+}
+
+.invoice-title strong {
+  color: #212529;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.invoice-description {
+  color: #6c757d;
+  font-size: 12px;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.contact-info span {
+  font-weight: 500;
+  color: #212529;
+}
+
+.contact-info small {
+  color: #6c757d;
+  font-size: 11px;
+}
+
+.no-contact {
+  color: #6c757d;
+  font-style: italic;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-draft {
+  background-color: #e9ecef;
+  color: #495057;
+}
+
+.badge-sent {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+.badge-paid {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.badge-overdue {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.badge-cancelled {
+  background-color: #e2e3e5;
+  color: #383d41;
+}
+
+.badge-partial {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.amount {
+  font-weight: 600;
+  color: #28a745;
+  font-family: 'Courier New', monospace;
+}
+
+.due-date-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.due-date {
+  color: #495057;
+  font-size: 13px;
+}
+
+.overdue-days {
+  color: #dc3545;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.no-date {
+  color: #6c757d;
+  font-style: italic;
+  font-size: 13px;
+}
+
+.created-date {
+  color: #6c757d;
+  font-size: 13px;
+}
+
+.actions {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.btn-icon {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #6c757d;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.btn-icon:hover {
+  background-color: #f8f9fa;
+  color: #495057;
+}
+
+.btn-icon.btn-success:hover {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.btn-icon.btn-info:hover {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+.btn-icon.btn-danger:hover {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #6c757d;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  color: #6c757d;
+}
+
+.empty-state i {
+  font-size: 48px;
+  margin-bottom: 16px;
+  color: #dee2e6;
+}
+
+.empty-state h3 {
+  margin: 0 0 8px 0;
+  color: #495057;
+  font-weight: 600;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 14px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .invoices-table {
+    font-size: 12px;
+  }
+  
+  .invoices-table th,
+  .invoices-table td {
+    padding: 8px 12px;
+  }
+  
+  .invoice-title {
+    max-width: 150px;
+  }
+  
+  .actions {
+    flex-direction: column;
+    gap: 2px;
+  }
+  
+  .btn-icon {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+@media (max-width: 480px) {
+  .invoices-table th:nth-child(3),
+  .invoices-table td:nth-child(3),
+  .invoices-table th:nth-child(6),
+  .invoices-table td:nth-child(6) {
+    display: none;
+  }
+  
+  .invoice-title {
+    max-width: 120px;
+  }
+}
