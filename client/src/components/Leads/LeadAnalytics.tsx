@@ -1,50 +1,76 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { apiService } from '../../services';
 import './LeadAnalytics.css';
 
-interface LeadAnalyticsProps {
-  // This would typically receive analytics data from props
-  // For now, we'll use mock data
+
+
+interface LeadAnalyticsData {
+  totalLeads: number;
+  activeLeads: number;
+  convertedLeads: number;
+  conversionRate: number;
+  sourceDistribution: Array<{
+    source: string;
+    count: number;
+    percentage: number;
+  }>;
+  statusDistribution: Array<{
+    status: string;
+    count: number;
+    percentage: number;
+  }>;
+  monthlyLeads: Array<{
+    month: string;
+    leads: number;
+  }>;
+  topSources: Array<{
+    source: string;
+    count: number;
+    percentage: number;
+  }>;
 }
 
-const LeadAnalytics: React.FC<LeadAnalyticsProps> = () => {
-  // Mock data - in a real app, this would come from the backend
-  const analyticsData = {
-    totalLeads: 156,
-    newLeads: 23,
-    qualifiedLeads: 89,
-    conversionRate: 68.2,
-    averageScore: 72.4,
-    topSources: [
-      { name: 'Website', count: 45, percentage: 28.8 },
-      { name: 'Referral', count: 38, percentage: 24.4 },
-      { name: 'Social Media', count: 32, percentage: 20.5 },
-      { name: 'Email', count: 25, percentage: 16.0 },
-      { name: 'Phone', count: 16, percentage: 10.3 }
-    ],
-    statusDistribution: [
-      { status: 'New', count: 23, color: '#3b82f6' },
-      { status: 'Contacted', count: 34, color: '#8b5cf6' },
-      { status: 'Qualified', count: 89, color: '#f59e0b' },
-      { status: 'Proposal', count: 12, color: '#ec4899' },
-      { status: 'Negotiation', count: 8, color: '#ef4444' },
-      { status: 'Closed Won', count: 15, color: '#10b981' },
-      { status: 'Closed Lost', count: 5, color: '#6b7280' }
-    ],
-    monthlyTrend: [
-      { month: 'Jan', leads: 12, qualified: 8 },
-      { month: 'Feb', leads: 18, qualified: 12 },
-      { month: 'Mar', leads: 15, qualified: 10 },
-      { month: 'Apr', leads: 22, qualified: 15 },
-      { month: 'May', leads: 28, qualified: 19 },
-      { month: 'Jun', leads: 25, qualified: 17 },
-      { month: 'Jul', leads: 31, qualified: 22 },
-      { month: 'Aug', leads: 29, qualified: 20 },
-      { month: 'Sep', leads: 26, qualified: 18 },
-      { month: 'Oct', leads: 24, qualified: 16 },
-      { month: 'Nov', leads: 21, qualified: 14 },
-      { month: 'Dec', leads: 19, qualified: 13 }
-    ]
+const LeadAnalytics: React.FC = () => {
+  const [analyticsData, setAnalyticsData] = useState<LeadAnalyticsData | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    loadAnalytics();
+  }, []);
+
+  const loadAnalytics = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await apiService.get('/analytics/leads');
+      if (response.success) {
+        setAnalyticsData(response.data as LeadAnalyticsData);
+      } else {
+        setError('Failed to load analytics data');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load analytics');
+      console.error('Error loading lead analytics:', err);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  // Default data structure while loading
+  const defaultData: LeadAnalyticsData = {
+    totalLeads: 0,
+    activeLeads: 0,
+    convertedLeads: 0,
+    conversionRate: 0,
+    sourceDistribution: [],
+    statusDistribution: [],
+    monthlyLeads: [],
+    topSources: []
+  };
+
+    const data = analyticsData || defaultData;
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return '#10b981';
@@ -66,6 +92,28 @@ const LeadAnalytics: React.FC<LeadAnalyticsProps> = () => {
     return colors[status] || '#6b7280';
   };
 
+  if (loading) {
+    return (
+      <div className="lead-analytics">
+        <div className="analytics-header">
+          <h3 className="analytics-title">Lead Analytics</h3>
+          <p className="analytics-subtitle">Loading analytics data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="lead-analytics">
+        <div className="analytics-header">
+          <h3 className="analytics-title">Lead Analytics</h3>
+          <p className="analytics-subtitle">Error: {error}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="lead-analytics">
       <div className="analytics-header">
@@ -79,7 +127,7 @@ const LeadAnalytics: React.FC<LeadAnalyticsProps> = () => {
             <span className="card-title">Total Leads</span>
             <span className="card-icon">👥</span>
           </div>
-          <div className="card-value">{analyticsData.totalLeads}</div>
+          <div className="card-value">{data.totalLeads}</div>
           <div className="card-change positive">
             <span className="change-icon">↗</span>
             +12% from last month
@@ -91,7 +139,7 @@ const LeadAnalytics: React.FC<LeadAnalyticsProps> = () => {
             <span className="card-title">Qualified Leads</span>
             <span className="card-icon">✅</span>
           </div>
-          <div className="card-value">{analyticsData.qualifiedLeads}</div>
+          <div className="card-value">{data.activeLeads}</div>
           <div className="card-change positive">
             <span className="change-icon">↗</span>
             +8% from last month
@@ -103,7 +151,7 @@ const LeadAnalytics: React.FC<LeadAnalyticsProps> = () => {
             <span className="card-title">New This Month</span>
             <span className="card-icon">🆕</span>
           </div>
-          <div className="card-value">{analyticsData.newLeads}</div>
+          <div className="card-value">{data.convertedLeads}</div>
           <div className="card-change neutral">
             <span className="change-icon">→</span>
             Same as last month
@@ -115,7 +163,7 @@ const LeadAnalytics: React.FC<LeadAnalyticsProps> = () => {
             <span className="card-title">Conversion Rate</span>
             <span className="card-icon">📊</span>
           </div>
-          <div className="card-value">{analyticsData.conversionRate}%</div>
+          <div className="card-value">{data.conversionRate}%</div>
           <div className="card-change positive">
             <span className="change-icon">↗</span>
             +3.2% from last month
@@ -125,31 +173,31 @@ const LeadAnalytics: React.FC<LeadAnalyticsProps> = () => {
 
       <div className="stats-grid">
         <div className="stat-item">
-          <div className="stat-label">Average Score</div>
-          <div className="stat-value" style={{ color: getScoreColor(analyticsData.averageScore) }}>
-            {analyticsData.averageScore}
+          <div className="stat-label">Conversion Rate</div>
+          <div className="stat-value">
+            {data.conversionRate}%
           </div>
         </div>
         <div className="stat-item">
-          <div className="stat-label">Qualification Rate</div>
+          <div className="stat-label">Active Lead Rate</div>
           <div className="stat-value">
-            {Math.round((analyticsData.qualifiedLeads / analyticsData.totalLeads) * 100)}%
+            {Math.round((data.activeLeads / data.totalLeads) * 100)}%
           </div>
         </div>
       </div>
 
       <div className="source-distribution">
         <h4>Top Lead Sources</h4>
-        {analyticsData.topSources.map((source, index) => (
+        {data.topSources.map((source, index) => (
           <div key={index} className="source-item">
             <div className="source-name">
               <div 
                 className="source-icon"
-                style={{ backgroundColor: getStatusColor(source.name) }}
+                style={{ backgroundColor: getStatusColor(source.source) }}
               >
-                {source.name.charAt(0)}
+                {source.source.charAt(0)}
               </div>
-              {source.name}
+              {source.source}
             </div>
             <div className="source-count">{source.count} ({source.percentage}%)</div>
           </div>
