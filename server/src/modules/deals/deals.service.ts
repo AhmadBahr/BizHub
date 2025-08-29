@@ -6,10 +6,10 @@ import { CreateDealDto, UpdateDealDto, DealQueryDto, DealResponseDto } from './d
 export class DealsService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createDealDto: CreateDealDto): Promise<DealResponseDto> {
+  async create(createDealDto: CreateDealDto, userId: string): Promise<DealResponseDto> {
     // Validate that the contact exists
-    const contact = await this.prisma.contact.findUnique({
-      where: { id: createDealDto.contactId },
+    const contact = await this.prisma.contact.findFirst({
+      where: { id: createDealDto.contactId, userId },
     });
     if (!contact) {
       throw new BadRequestException('Contact not found');
@@ -17,8 +17,8 @@ export class DealsService {
 
     // Validate that the lead exists if provided
     if (createDealDto.leadId) {
-      const lead = await this.prisma.lead.findUnique({
-        where: { id: createDealDto.leadId },
+      const lead = await this.prisma.lead.findFirst({
+        where: { id: createDealDto.leadId, userId },
       });
       if (!lead) {
         throw new BadRequestException('Lead not found');
@@ -35,8 +35,16 @@ export class DealsService {
       }
     }
 
+    const { contactId, leadId, assignedToId, ...dealData } = createDealDto;
+    
     const deal = await this.prisma.deal.create({
-      data: createDealDto,
+      data: {
+        ...dealData,
+        user: { connect: { id: userId } },
+        contact: contactId ? { connect: { id: contactId } } : undefined,
+        lead: leadId ? { connect: { id: leadId } } : undefined,
+        assignedTo: assignedToId ? { connect: { id: assignedToId } } : undefined,
+      },
       include: {
         contact: {
           select: {
