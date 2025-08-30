@@ -77,7 +77,8 @@ const LeadList: React.FC<LeadListProps> = ({
     );
   }
 
-  if (leads.length === 0) {
+  // Safety check for undefined leads
+  if (!leads || leads.length === 0) {
     return (
       <div className="lead-list-empty">
         <span className="empty-icon">👥</span>
@@ -91,15 +92,15 @@ const LeadList: React.FC<LeadListProps> = ({
     <div className="lead-list">
       <div className="list-header">
         <div className="list-stats">
-          <span className="total-leads">{leads.length} leads</span>
+          <span className="total-leads">{leads?.length || 0} leads</span>
           <span className="qualified-leads">
-            {leads.filter(lead => lead.status === 'Qualified').length} qualified
+            {leads?.filter(lead => lead.status === 'Qualified').length || 0} qualified
           </span>
         </div>
       </div>
 
       <div className="leads-container">
-        {leads.map(lead => (
+        {leads?.map(lead => (
           <div key={lead.id} className="lead-item">
             <div className="lead-main">
               <div className="lead-score" style={{ backgroundColor: getScoreColor(lead.score || 0) }}>
