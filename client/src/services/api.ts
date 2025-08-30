@@ -1,22 +1,21 @@
-import axios, { type AxiosInstance, type AxiosResponse, type AxiosError, type AxiosRequestConfig } from 'axios';
-import type { PaginatedResponse } from '../types';
+import axios, { type AxiosInstance, type AxiosResponse } from 'axios';
 
-// Extend AxiosRequestConfig to include _retry property
-interface ExtendedAxiosRequestConfig extends AxiosRequestConfig {
-  _retry?: boolean;
-}
+// API Configuration
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 // Create axios instance
 const api: AxiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000',
+  baseURL: API_BASE_URL,
   timeout: 10000,
-  withCredentials: true, // Important for session cookies
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
-// Request interceptor to add JWT token
+// Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('accessToken');
+    const token = localStorage.getItem('authToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -27,81 +26,93 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor for token refresh and error handling
+// Response interceptor to handle errors
 api.interceptors.response.use(
-  (response: AxiosResponse) => {
-    return response;
-  },
-  async (error: AxiosError) => {
-    const originalRequest = error.config as ExtendedAxiosRequestConfig;
-    
-    if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
-      originalRequest._retry = true;
-      
-      try {
-        // Try to refresh the token
-        const refreshToken = localStorage.getItem('refreshToken');
-        if (refreshToken) {
-          const response = await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/auth/refresh`, { refreshToken });
-          
-          if (response.data.accessToken) {
-            localStorage.setItem('accessToken', response.data.accessToken);
-            localStorage.setItem('refreshToken', response.data.refreshToken);
-            
-            // Retry the original request with the new token
-            if (originalRequest.headers) {
-              originalRequest.headers.Authorization = `Bearer ${response.data.accessToken}`;
-            }
-            return api(originalRequest);
-          }
-        }
-      } catch (refreshError) {
-        // If refresh fails, clear tokens and reject
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-      }
+  (response: AxiosResponse) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Handle unauthorized access
+      localStorage.removeItem('authToken');
+      window.location.href = '/login';
     }
-    
     return Promise.reject(error);
   }
 );
 
+// Generic API response type - backend returns data directly
+export interface ApiResponse<T> {
+  data: T;
+  message?: string;
+  success: boolean;
+}
+
+// Since backend returns data directly, we'll wrap it
+export interface BackendResponse<T> {
+  data: T;
+  message?: string;
+  success: boolean;
+}
+
+// Pagination type
+export interface PaginationParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
 // Generic API methods
 export const apiService = {
   // GET request
-  get: async <T>(url: string): Promise<T> => {
-    const response = await api.get(url);
-    return response.data;
-  },
-
-  // GET request with pagination
-  getPaginated: async <T>(url: string, params?: any): Promise<PaginatedResponse<T>> => {
+  get: async <T>(url: string, params?: any): Promise<ApiResponse<T>> => {
     const response = await api.get(url, { params });
-    return response.data;
+    // Backend returns data directly, so we wrap it
+    return {
+      data: response.data,
+      success: true,
+      message: 'Success'
+    };
   },
 
   // POST request
-  post: async <T>(url: string, data?: any): Promise<T> => {
+  post: async <T>(url: string, data?: any): Promise<ApiResponse<T>> => {
     const response = await api.post(url, data);
-    return response.data;
+    return {
+      data: response.data,
+      success: true,
+      message: 'Success'
+    };
   },
 
   // PUT request
-  put: async <T>(url: string, data?: any): Promise<T> => {
+  put: async <T>(url: string, data?: any): Promise<ApiResponse<T>> => {
     const response = await api.put(url, data);
-    return response.data;
-  },
-
-  // DELETE request
-  delete: async <T>(url: string): Promise<T> => {
-    const response = await api.delete(url);
-    return response.data;
+    return {
+      data: response.data,
+      success: true,
+      message: 'Success'
+    };
   },
 
   // PATCH request
-  patch: async <T>(url: string, data?: any): Promise<T> => {
+  patch: async <T>(url: string, data?: any): Promise<ApiResponse<T>> => {
     const response = await api.patch(url, data);
-    return response.data;
+    return {
+      data: response.data,
+      success: true,
+      message: 'Success'
+    };
+  },
+
+  // DELETE request
+  delete: async <T>(url: string): Promise<ApiResponse<T>> => {
+    const response = await api.delete(url);
+    return {
+      data: response.data,
+      success: true,
+      message: 'Success'
+    };
   },
 };
 
