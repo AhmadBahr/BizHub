@@ -21,3 +21,4 @@ export class CreateKnowledgeBaseDto {
   isPublished?: boolean;
 }
 
+
