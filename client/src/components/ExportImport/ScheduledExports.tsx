@@ -9,6 +9,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useAccessibility } from '../../hooks/useAccessibility';
 import AccessibleButton from '../Accessibility/AccessibleButton';
+import CreateScheduledExportForm from './CreateScheduledExportForm';
 import './ScheduledExports.css';
 
 interface ScheduledExport {
@@ -43,6 +44,7 @@ const ScheduledExports: React.FC<ScheduledExportsProps> = () => {
   const [scheduledExports, setScheduledExports] = useState<ScheduledExport[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [editingExport, setEditingExport] = useState<ScheduledExport | undefined>(undefined);
   const { announceToScreenReader } = useAccessibility();
 
   useEffect(() => {
@@ -120,6 +122,55 @@ const ScheduledExports: React.FC<ScheduledExportsProps> = () => {
       console.error('Failed to delete scheduled export:', error);
       announceToScreenReader('Failed to delete scheduled export', 'assertive');
     }
+  };
+
+  const handleSaveExport = async (exportData: ScheduledExport) => {
+    try {
+      const url = editingExport 
+        ? `/api/scheduled-exports/${editingExport.id}`
+        : '/api/scheduled-exports';
+      
+      const method = editingExport ? 'PUT' : 'POST';
+      
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(exportData),
+      });
+
+      if (response.ok) {
+        const savedExport = await response.json();
+        
+        if (editingExport) {
+          setScheduledExports(prev => 
+            prev.map(exp => exp.id === editingExport.id ? savedExport : exp)
+          );
+        } else {
+          setScheduledExports(prev => [...prev, savedExport]);
+        }
+        
+        setShowCreateForm(false);
+        setEditingExport(undefined);
+        announceToScreenReader(
+          `Scheduled export ${editingExport ? 'updated' : 'created'} successfully`
+        );
+      }
+    } catch (error) {
+      console.error('Failed to save scheduled export:', error);
+      throw error;
+    }
+  };
+
+  const handleEditExport = (scheduledExport: ScheduledExport) => {
+    setEditingExport(scheduledExport);
+    setShowCreateForm(true);
+  };
+
+  const handleCancelForm = () => {
+    setShowCreateForm(false);
+    setEditingExport(undefined);
   };
 
   const formatSchedule = (schedule: string, config: any) => {
@@ -285,6 +336,15 @@ const ScheduledExports: React.FC<ScheduledExportsProps> = () => {
                   </AccessibleButton>
 
                   <AccessibleButton
+                    onClick={() => handleEditExport(scheduledExport)}
+                    variant="outline"
+                    size="sm"
+                    ariaLabel={`Edit ${scheduledExport.name}`}
+                  >
+                    Edit
+                  </AccessibleButton>
+
+                  <AccessibleButton
                     onClick={() => handleDelete(scheduledExport.id)}
                     variant="danger"
                     size="sm"
@@ -300,23 +360,14 @@ const ScheduledExports: React.FC<ScheduledExportsProps> = () => {
         </div>
       )}
 
-      {/* Create/Edit Form Modal would go here */}
+      {/* Create/Edit Form Modal */}
       {showCreateForm && (
-        <div className="modal-overlay">
-          {/* CreateScheduledExportForm component would be implemented here */}
-          <div className="modal-content">
-            <h3>Create Scheduled Export</h3>
-            <p>Form implementation would go here...</p>
-            <div className="modal-actions">
-              <AccessibleButton
-                onClick={() => setShowCreateForm(false)}
-                variant="secondary"
-              >
-                Cancel
-              </AccessibleButton>
-            </div>
-          </div>
-        </div>
+        <CreateScheduledExportForm
+          scheduledExport={editingExport}
+          onSave={handleSaveExport}
+          onCancel={handleCancelForm}
+          isEditing={!!editingExport}
+        />
       )}
     </div>
   );
