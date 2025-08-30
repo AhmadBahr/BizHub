@@ -54,8 +54,6 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   private reportError = (error: Error, errorInfo: ErrorInfo) => {
-    // In a real application, you would send this to an error reporting service
-    // like Sentry, LogRocket, or your own error tracking service
     try {
       fetch('/api/errors', {
         method: 'POST',
