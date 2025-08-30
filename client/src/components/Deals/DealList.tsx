@@ -53,8 +53,9 @@ const DealList: React.FC<DealListProps> = ({
     }).format(amount);
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString();
+  const formatDate = (date: string | Date) => {
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    return dateObj.toLocaleDateString();
   };
 
   if (isLoading) {
@@ -66,7 +67,7 @@ const DealList: React.FC<DealListProps> = ({
     );
   }
 
-  if (deals.length === 0) {
+  if (!deals || deals.length === 0) {
     return (
       <div className="deals-list-empty">
         <div className="empty-icon">📊</div>
@@ -91,7 +92,7 @@ const DealList: React.FC<DealListProps> = ({
         </div>
 
         <div className="table-body">
-          {deals.map((deal) => (
+          {deals?.map((deal) => (
             <div key={deal.id} className="table-row">
               <div className="table-cell deal-info">
                 <div className="deal-name" onClick={() => onView(deal)}>
@@ -136,7 +137,7 @@ const DealList: React.FC<DealListProps> = ({
               
               <div className="table-cell expected-close">
                 {deal.expectedCloseDate ? (
-                  <span className="close-date">{formatDate(deal.expectedCloseDate?.toISOString() || '')}</span>
+                  <span className="close-date">{formatDate(deal.expectedCloseDate)}</span>
                 ) : (
                   <span className="no-date">Not set</span>
                 )}
