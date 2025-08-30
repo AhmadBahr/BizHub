@@ -1,22 +1,31 @@
 import React from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-const data = [
-  { month: 'Jan', sales: 4000, leads: 2400 },
-  { month: 'Feb', sales: 3000, leads: 1398 },
-  { month: 'Mar', sales: 2000, leads: 9800 },
-  { month: 'Apr', sales: 2780, leads: 3908 },
-  { month: 'May', sales: 1890, leads: 4800 },
-  { month: 'Jun', sales: 2390, leads: 3800 },
-  { month: 'Jul', sales: 3490, leads: 4300 },
-  { month: 'Aug', sales: 4000, leads: 2400 },
-  { month: 'Sep', sales: 3000, leads: 1398 },
-  { month: 'Oct', sales: 2000, leads: 9800 },
-  { month: 'Nov', sales: 2780, leads: 3908 },
-  { month: 'Dec', sales: 1890, leads: 4800 },
-];
+interface SalesChartProps {
+  data: Array<{
+    month: string;
+    sales: number;
+    leads: number;
+  }>;
+}
 
-const SalesChart: React.FC = () => {
+const SalesChart: React.FC<SalesChartProps> = ({ data = [] }) => {
+  // Default empty state
+  if (!data || data.length === 0) {
+    return (
+      <div style={{ 
+        height: 300, 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        color: 'var(--text-secondary)',
+        fontSize: '14px'
+      }}>
+        No sales data available
+      </div>
+    );
+  }
+
   return (
     <ResponsiveContainer width="100%" height={300}>
       <LineChart data={data}>
