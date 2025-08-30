@@ -41,10 +41,32 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
 
   useEffect(() => {
     if (user?.id) {
-      // Mock notification setup - replace with actual socket.io implementation later
-      console.log('Setting up notification connection for user:', user.id);
+      // Load notifications from API
+      loadNotifications();
+      
+      // Set up polling for new notifications (replace with WebSocket later)
+      const interval = setInterval(loadNotifications, 30000); // Poll every 30 seconds
+      
+      return () => clearInterval(interval);
     }
   }, [user?.id]);
+
+  const loadNotifications = async () => {
+    try {
+      const response = await fetch(`/api/notifications`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      
+      if (response.ok) {
+        const notificationsData = await response.json();
+        setNotifications(notificationsData);
+      }
+    } catch (error) {
+      console.error('Error loading notifications:', error);
+    }
+  };
 
   const markAsRead = async (id: string) => {
     try {
