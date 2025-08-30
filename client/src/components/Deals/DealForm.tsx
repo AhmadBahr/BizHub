@@ -9,8 +9,21 @@ interface DealFormProps {
   onClose: () => void;
 }
 
+interface DealFormData {
+  title: string;
+  description: string;
+  status: string;
+  value: number;
+  probability: number;
+  expectedCloseDate: string;
+  notes: string;
+  tags: string[];
+  contactId: string;
+  assignedToId: string;
+}
+
 const DealForm: React.FC<DealFormProps> = ({ deal, isEditing, onSubmit, onClose }) => {
-  const [formData, setFormData] = useState<Partial<Deal> & { expectedCloseDate: string }>({
+  const [formData, setFormData] = useState<DealFormData>({
     title: '',
     description: '',
     status: 'OPPORTUNITY',
