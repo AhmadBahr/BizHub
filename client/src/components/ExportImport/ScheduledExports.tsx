@@ -124,43 +124,47 @@ const ScheduledExports: React.FC<ScheduledExportsProps> = () => {
     }
   };
 
-  const handleSaveExport = async (exportData: ScheduledExport) => {
-    try {
-      const url = editingExport 
-        ? `/api/scheduled-exports/${editingExport.id}`
-        : '/api/scheduled-exports';
-      
-      const method = editingExport ? 'PUT' : 'POST';
-      
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(exportData),
-      });
+  const handleSaveExport = (exportData: ScheduledExport) => {
+    const saveExport = async () => {
+      try {
+        const url = editingExport 
+          ? `/api/scheduled-exports/${editingExport.id}`
+          : '/api/scheduled-exports';
+        
+        const method = editingExport ? 'PUT' : 'POST';
+        
+        const response = await fetch(url, {
+          method,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(exportData),
+        });
 
-      if (response.ok) {
-        const savedExport = await response.json();
-        
-        if (editingExport) {
-          setScheduledExports(prev => 
-            prev.map(exp => exp.id === editingExport.id ? savedExport : exp)
+        if (response.ok) {
+          const savedExport = await response.json();
+          
+          if (editingExport) {
+            setScheduledExports(prev => 
+              prev.map(exp => exp.id === editingExport.id ? savedExport : exp)
+            );
+          } else {
+            setScheduledExports(prev => [...prev, savedExport]);
+          }
+          
+          setShowCreateForm(false);
+          setEditingExport(undefined);
+          announceToScreenReader(
+            `Scheduled export ${editingExport ? 'updated' : 'created'} successfully`
           );
-        } else {
-          setScheduledExports(prev => [...prev, savedExport]);
         }
-        
-        setShowCreateForm(false);
-        setEditingExport(undefined);
-        announceToScreenReader(
-          `Scheduled export ${editingExport ? 'updated' : 'created'} successfully`
-        );
+      } catch (error) {
+        console.error('Failed to save scheduled export:', error);
+        throw error;
       }
-    } catch (error) {
-      console.error('Failed to save scheduled export:', error);
-      throw error;
-    }
+    };
+    
+    saveExport();
   };
 
   const handleEditExport = (scheduledExport: ScheduledExport) => {
