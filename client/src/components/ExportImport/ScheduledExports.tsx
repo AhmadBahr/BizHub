@@ -9,32 +9,8 @@ import {
 } from '@heroicons/react/24/outline';
 import { useAccessibility } from '../../hooks/useAccessibility';
 import AccessibleButton from '../Accessibility/AccessibleButton';
-import CreateScheduledExportForm from './CreateScheduledExportForm';
+import CreateScheduledExportForm, { type ScheduledExport } from './CreateScheduledExportForm';
 import './ScheduledExports.css';
-
-interface ScheduledExport {
-  id: string;
-  name: string;
-  description?: string;
-  entityType: 'contacts' | 'leads' | 'deals' | 'tasks' | 'analytics';
-  format: 'csv' | 'excel' | 'pdf';
-  schedule: 'daily' | 'weekly' | 'monthly' | 'custom';
-  scheduleConfig: {
-    dayOfWeek?: number;
-    dayOfMonth?: number;
-    hour?: number;
-    minute?: number;
-    timezone?: string;
-    customCron?: string;
-  };
-  filters?: Record<string, any>;
-  recipients: string[];
-  isActive: boolean;
-  lastRun?: Date;
-  nextRun?: Date;
-  createdAt: Date;
-  updatedAt: Date;
-}
 
 interface ScheduledExportsProps {
   // Props removed as they're not used
@@ -127,11 +103,11 @@ const ScheduledExports: React.FC<ScheduledExportsProps> = () => {
   const handleSaveExport = (exportData: ScheduledExport) => {
     const saveExport = async () => {
       try {
-        const url = editingExport 
-          ? `/api/scheduled-exports/${editingExport.id}`
+        const url = exportData.id 
+          ? `/api/scheduled-exports/${exportData.id}`
           : '/api/scheduled-exports';
         
-        const method = editingExport ? 'PUT' : 'POST';
+        const method = exportData.id ? 'PUT' : 'POST';
         
         const response = await fetch(url, {
           method,
@@ -142,11 +118,11 @@ const ScheduledExports: React.FC<ScheduledExportsProps> = () => {
         });
 
         if (response.ok) {
-          const savedExport = await response.json();
+          const savedExport = (await response.json()) as ScheduledExport;
           
-          if (editingExport) {
+          if (exportData.id) {
             setScheduledExports(prev => 
-              prev.map(exp => exp.id === editingExport.id ? savedExport : exp)
+              prev.map(exp => exp.id === savedExport.id ? savedExport : exp)
             );
           } else {
             setScheduledExports(prev => [...prev, savedExport]);
@@ -155,7 +131,7 @@ const ScheduledExports: React.FC<ScheduledExportsProps> = () => {
           setShowCreateForm(false);
           setEditingExport(undefined);
           announceToScreenReader(
-            `Scheduled export ${editingExport ? 'updated' : 'created'} successfully`
+            `Scheduled export ${exportData.id ? 'updated' : 'created'} successfully`
           );
         }
       } catch (error) {
@@ -321,7 +297,7 @@ const ScheduledExports: React.FC<ScheduledExportsProps> = () => {
 
                 <div className="export-actions">
                   <AccessibleButton
-                    onClick={() => handleRunNow(scheduledExport.id)}
+                    onClick={() => scheduledExport.id && handleRunNow(scheduledExport.id)}
                     variant="outline"
                     size="sm"
                     ariaLabel={`Run ${scheduledExport.name} now`}
@@ -330,7 +306,7 @@ const ScheduledExports: React.FC<ScheduledExportsProps> = () => {
                     Run Now
                   </AccessibleButton>
                   <AccessibleButton
-                    onClick={() => handleToggleActive(scheduledExport.id)}
+                    onClick={() => scheduledExport.id && handleToggleActive(scheduledExport.id)}
                     variant="outline"
                     size="sm"
                     ariaLabel={`${scheduledExport.isActive ? 'Deactivate' : 'Activate'} ${scheduledExport.name}`}
@@ -349,7 +325,7 @@ const ScheduledExports: React.FC<ScheduledExportsProps> = () => {
                   </AccessibleButton>
 
                   <AccessibleButton
-                    onClick={() => handleDelete(scheduledExport.id)}
+                    onClick={() => scheduledExport.id && handleDelete(scheduledExport.id)}
                     variant="danger"
                     size="sm"
                     ariaLabel={`Delete ${scheduledExport.name}`}
