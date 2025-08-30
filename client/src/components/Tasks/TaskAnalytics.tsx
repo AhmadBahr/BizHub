@@ -1,55 +1,52 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { apiService } from '../../services';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import './TaskAnalytics.css';
 
-interface TaskAnalyticsProps {
-  // This would typically receive analytics data from props
-  // For now, we'll use mock data
-}
+const TaskAnalytics: React.FC = () => {
+  const [analyticsData, setAnalyticsData] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-const TaskAnalytics: React.FC<TaskAnalyticsProps> = () => {
-  // Mock data - in a real app, this would come from the backend
-  const analyticsData = {
-    totalTasks: 234,
-    completedTasks: 187,
-    pendingTasks: 47,
-    overdueTasks: 12,
-    completionRate: 79.9,
-    averageCompletionTime: 2.3,
-    priorityDistribution: [
-      { priority: 'High', count: 45, color: '#ef4444' },
-      { priority: 'Medium', count: 128, color: '#f59e0b' },
-      { priority: 'Low', count: 61, color: '#10b981' }
-    ],
-    statusDistribution: [
-      { status: 'Not Started', count: 23, color: '#6b7280' },
-      { status: 'In Progress', count: 47, color: '#3b82f6' },
-      { status: 'Under Review', count: 18, color: '#8b5cf6' },
-      { status: 'Completed', count: 187, color: '#10b981' },
-      { status: 'Cancelled', count: 6, color: '#ef4444' }
-    ],
-    weeklyCompletion: [
-      { week: 'Week 1', completed: 28, created: 32 },
-      { week: 'Week 2', completed: 35, created: 29 },
-      { week: 'Week 3', completed: 42, created: 38 },
-      { week: 'Week 4', completed: 31, created: 35 },
-      { week: 'Week 5', completed: 38, created: 41 },
-      { week: 'Week 6', completed: 45, created: 39 }
-    ],
-    topPerformers: [
-      { name: 'Alex Thompson', completed: 24, efficiency: 94.2, avatar: '👨‍💼' },
-      { name: 'Maria Garcia', completed: 22, efficiency: 91.8, avatar: '👩‍💼' },
-      { name: 'James Wilson', completed: 20, efficiency: 89.5, avatar: '👨‍💼' },
-      { name: 'Lisa Chen', completed: 19, efficiency: 87.3, avatar: '👩‍💼' }
-    ],
-    categoryBreakdown: [
-      { category: 'Sales', count: 78, percentage: 33.3 },
-      { category: 'Marketing', count: 65, percentage: 27.8 },
-      { category: 'Development', count: 45, percentage: 19.2 },
-      { category: 'Support', count: 32, percentage: 13.7 },
-      { category: 'Administration', count: 14, percentage: 6.0 }
-    ]
+  useEffect(() => {
+    loadAnalytics();
+  }, []);
+
+  const loadAnalytics = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await apiService.get('/analytics/tasks');
+      if (response.success) {
+        setAnalyticsData(response.data);
+      } else {
+        setError('Failed to load analytics data');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load analytics');
+      console.error('Error loading task analytics:', err);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  // Default data structure while loading
+  const defaultData = {
+    totalTasks: 0,
+    completedTasks: 0,
+    pendingTasks: 0,
+    overdueTasks: 0,
+    completionRate: 0,
+    averageCompletionTime: 0,
+    priorityDistribution: [],
+    statusDistribution: [],
+    weeklyCompletion: [],
+    topPerformers: [],
+    categoryBreakdown: []
+  };
+
+    const data = analyticsData || defaultData;
 
   const formatPercentage = (value: number) => {
     return `${value}%`;
@@ -58,6 +55,28 @@ const TaskAnalytics: React.FC<TaskAnalyticsProps> = () => {
   const formatTime = (days: number) => {
     return `${days} days`;
   };
+
+  if (loading) {
+    return (
+      <div className="task-analytics">
+        <div className="analytics-header">
+          <h3>Task Analytics</h3>
+          <p>Loading analytics data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="task-analytics">
+        <div className="analytics-header">
+          <h3>Task Analytics</h3>
+          <p>Error: {error}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="task-analytics">
@@ -70,7 +89,7 @@ const TaskAnalytics: React.FC<TaskAnalyticsProps> = () => {
         <div className="metric-card">
           <div className="metric-icon">📋</div>
           <div className="metric-content">
-            <div className="metric-value">{analyticsData.totalTasks}</div>
+            <div className="metric-value">{data.totalTasks}</div>
             <div className="metric-label">Total Tasks</div>
           </div>
         </div>
@@ -78,7 +97,7 @@ const TaskAnalytics: React.FC<TaskAnalyticsProps> = () => {
         <div className="metric-card">
           <div className="metric-icon">✅</div>
           <div className="metric-content">
-            <div className="metric-value">{analyticsData.completedTasks}</div>
+            <div className="metric-value">{data.completedTasks}</div>
             <div className="metric-label">Completed</div>
           </div>
         </div>
@@ -86,7 +105,7 @@ const TaskAnalytics: React.FC<TaskAnalyticsProps> = () => {
         <div className="metric-card">
           <div className="metric-icon">⏰</div>
           <div className="metric-content">
-            <div className="metric-value">{analyticsData.overdueTasks}</div>
+            <div className="metric-value">{data.overdueTasks}</div>
             <div className="metric-label">Overdue</div>
           </div>
         </div>
@@ -94,7 +113,7 @@ const TaskAnalytics: React.FC<TaskAnalyticsProps> = () => {
         <div className="metric-card">
           <div className="metric-icon">🎯</div>
           <div className="metric-content">
-            <div className="metric-value">{analyticsData.completionRate}%</div>
+            <div className="metric-value">{data.completionRate}%</div>
             <div className="metric-label">Completion Rate</div>
           </div>
         </div>
@@ -103,7 +122,7 @@ const TaskAnalytics: React.FC<TaskAnalyticsProps> = () => {
       <div className="analytics-section">
         <h4>Weekly Completion Trend</h4>
         <ResponsiveContainer width="100%" height={200}>
-          <LineChart data={analyticsData.weeklyCompletion}>
+          <LineChart data={data.weeklyCompletion}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="week" />
             <YAxis />
@@ -131,7 +150,7 @@ const TaskAnalytics: React.FC<TaskAnalyticsProps> = () => {
       <div className="analytics-section">
         <h4>Priority Distribution</h4>
         <div className="priority-distribution">
-          {analyticsData.priorityDistribution.map((priority) => (
+          {data.priorityDistribution.map((priority) => (
             <div key={priority.priority} className="priority-item">
               <div className="priority-info">
                 <span className="priority-name">{priority.priority}</span>
@@ -141,13 +160,13 @@ const TaskAnalytics: React.FC<TaskAnalyticsProps> = () => {
                 <div 
                   className="priority-progress"
                   style={{ 
-                    width: `${(priority.count / analyticsData.totalTasks) * 100}%`,
+                    width: `${(priority.count / data.totalTasks) * 100}%`,
                     backgroundColor: priority.color
                   }}
                 ></div>
               </div>
               <span className="priority-percentage">
-                {((priority.count / analyticsData.totalTasks) * 100).toFixed(1)}%
+                {((priority.count / data.totalTasks) * 100).toFixed(1)}%
               </span>
             </div>
           ))}
@@ -157,7 +176,7 @@ const TaskAnalytics: React.FC<TaskAnalyticsProps> = () => {
       <div className="analytics-section">
         <h4>Status Overview</h4>
         <div className="status-overview">
-          {analyticsData.statusDistribution.map((status) => (
+          {data.statusDistribution.map((status) => (
             <div key={status.status} className="status-item">
               <div className="status-color" style={{ backgroundColor: status.color }}></div>
               <div className="status-info">
@@ -165,7 +184,7 @@ const TaskAnalytics: React.FC<TaskAnalyticsProps> = () => {
                 <span className="status-count">{status.count}</span>
               </div>
               <span className="status-percentage">
-                {((status.count / analyticsData.totalTasks) * 100).toFixed(1)}%
+                {((status.count / data.totalTasks) * 100).toFixed(1)}%
               </span>
             </div>
           ))}
@@ -175,7 +194,7 @@ const TaskAnalytics: React.FC<TaskAnalyticsProps> = () => {
       <div className="analytics-section">
         <h4>Top Performers</h4>
         <div className="performers-list">
-          {analyticsData.topPerformers.map((performer, index) => (
+          {data.topPerformers.map((performer, index) => (
             <div key={performer.name} className="performer-item">
               <div className="performer-rank">#{index + 1}</div>
               <div className="performer-avatar">{performer.avatar}</div>
@@ -194,11 +213,11 @@ const TaskAnalytics: React.FC<TaskAnalyticsProps> = () => {
         <h4>Category Breakdown</h4>
         <div className="category-chart">
           <div className="category-legend">
-            {analyticsData.categoryBreakdown.map((category) => (
+            {data.categoryBreakdown.map((category) => (
               <div key={category.category} className="legend-item">
                 <span className="legend-color" style={{ 
                   backgroundColor: ['#3b82f6', '#8b5cf6', '#f59e0b', '#10b981', '#ef4444'][
-                    analyticsData.categoryBreakdown.findIndex(c => c.category === category.category)
+                    data.categoryBreakdown.findIndex(c => c.category === category.category)
                   ]
                 }}></span>
                 <span className="legend-label">{category.category}</span>
@@ -214,15 +233,15 @@ const TaskAnalytics: React.FC<TaskAnalyticsProps> = () => {
         <div className="key-metrics">
           <div className="key-metric">
             <div className="key-metric-label">Average Completion Time</div>
-            <div className="key-metric-value">{formatTime(analyticsData.averageCompletionTime)}</div>
+            <div className="key-metric-value">{formatTime(data.averageCompletionTime)}</div>
           </div>
           <div className="key-metric">
             <div className="key-metric-label">Pending Tasks</div>
-            <div className="key-metric-value">{analyticsData.pendingTasks}</div>
+            <div className="key-metric-value">{data.pendingTasks}</div>
           </div>
           <div className="key-metric">
             <div className="key-metric-label">Overdue Rate</div>
-            <div className="key-metric-value">{formatPercentage((analyticsData.overdueTasks / analyticsData.totalTasks) * 100)}</div>
+            <div className="key-metric-value">{formatPercentage((data.overdueTasks / data.totalTasks) * 100)}</div>
           </div>
         </div>
       </div>
