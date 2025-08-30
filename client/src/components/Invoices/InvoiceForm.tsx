@@ -31,8 +31,8 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({
   });
 
   const [lineItems, setLineItems] = useState<InvoiceLineItem[]>([]);
-  const [contacts] = useState<Contact[]>([]);
-  const [quotes] = useState<Quote[]>([]);
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [quotes, setQuotes] = useState<Quote[]>([]);
 
   useEffect(() => {
     if (invoice) {
@@ -53,9 +53,31 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({
       setLineItems(invoice.lineItems || []);
     }
     // Load contacts and quotes
-    // loadContacts();
-    // loadQuotes();
+    loadContacts();
+    loadQuotes();
   }, [invoice]);
+
+  const loadContacts = async () => {
+    try {
+      // This would fetch contacts from the backend
+      // const response = await apiService.getData<Contact[]>('/contacts');
+      // setContacts(response);
+      setContacts([]); // Empty for now, will be populated when API is ready
+    } catch (error) {
+      console.error('Failed to load contacts:', error);
+    }
+  };
+
+  const loadQuotes = async () => {
+    try {
+      // This would fetch quotes from the backend
+      // const response = await apiService.getData<Quote[]>('/quotes');
+      // setQuotes(response);
+      setQuotes([]); // Empty for now, will be populated when API is ready
+    } catch (error) {
+      console.error('Failed to load quotes:', error);
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
