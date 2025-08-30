@@ -1,15 +1,31 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-const data = [
-  { stage: 'Lead', conversion: 65, target: 70 },
-  { stage: 'Qualified', conversion: 45, target: 50 },
-  { stage: 'Proposal', conversion: 30, target: 35 },
-  { stage: 'Negotiation', conversion: 20, target: 25 },
-  { stage: 'Closed', conversion: 15, target: 20 },
-];
+interface ConversionChartProps {
+  data: Array<{
+    stage: string;
+    conversion: number;
+    target: number;
+  }>;
+}
 
-const ConversionChart: React.FC = () => {
+const ConversionChart: React.FC<ConversionChartProps> = ({ data = [] }) => {
+  // Default empty state
+  if (!data || data.length === 0) {
+    return (
+      <div style={{ 
+        height: 300, 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        color: 'var(--text-secondary)',
+        fontSize: '14px'
+      }}>
+        No conversion data available
+      </div>
+    );
+  }
+
   return (
     <ResponsiveContainer width="100%" height={300}>
       <BarChart data={data}>
