@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, UseGuards, HttpException, HttpStatus } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AnalyticsService } from './analytics.service';
 
@@ -9,32 +9,60 @@ export class AnalyticsController {
 
   @Get('deals')
   async getDealAnalytics() {
-    return this.analyticsService.getDealAnalytics();
+    try {
+      return await this.analyticsService.getDealAnalytics();
+    } catch (error) {
+      throw new HttpException(
+        'Failed to fetch deal analytics',
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
   }
 
   @Get('tasks')
   async getTaskAnalytics() {
-    return this.analyticsService.getTaskAnalytics();
+    try {
+      return await this.analyticsService.getTaskAnalytics();
+    } catch (error) {
+      throw new HttpException(
+        'Failed to fetch task analytics',
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
   }
 
   @Get('leads')
   async getLeadAnalytics() {
-    return this.analyticsService.getLeadAnalytics();
+    try {
+      return await this.analyticsService.getLeadAnalytics();
+    } catch (error) {
+      throw new HttpException(
+        'Failed to fetch lead analytics',
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
   }
 
   @Get('overview')
   async getAllAnalytics() {
-    const [dealAnalytics, taskAnalytics, leadAnalytics] = await Promise.all([
-      this.analyticsService.getDealAnalytics(),
-      this.analyticsService.getTaskAnalytics(),
-      this.analyticsService.getLeadAnalytics(),
-    ]);
+    try {
+      const [dealAnalytics, taskAnalytics, leadAnalytics] = await Promise.all([
+        this.analyticsService.getDealAnalytics(),
+        this.analyticsService.getTaskAnalytics(),
+        this.analyticsService.getLeadAnalytics(),
+      ]);
 
-    return {
-      deals: dealAnalytics,
-      tasks: taskAnalytics,
-      leads: leadAnalytics,
-      timestamp: new Date().toISOString(),
-    };
+      return {
+        deals: dealAnalytics,
+        tasks: taskAnalytics,
+        leads: leadAnalytics,
+        timestamp: new Date().toISOString(),
+      };
+    } catch (error) {
+      throw new HttpException(
+        'Failed to fetch analytics overview',
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
   }
 }
