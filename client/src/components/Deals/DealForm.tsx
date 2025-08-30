@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import type { Deal } from '../../types';
+import type { Deal, Contact, User } from '../../types';
 import './DealForm.css';
 
 interface DealFormProps {
-  deal?: Deal | null;
+  deal?: Partial<Deal>;
   isEditing: boolean;
-  onSubmit: (data: Partial<Deal>) => void;
+  onSubmit: (deal: Partial<Deal>) => void;
   onClose: () => void;
 }
 
@@ -13,16 +13,18 @@ const DealForm: React.FC<DealFormProps> = ({ deal, isEditing, onSubmit, onClose 
   const [formData, setFormData] = useState<Partial<Deal>>({
     title: '',
     description: '',
+    status: 'OPPORTUNITY',
     value: 0,
-    status: 'Prospecting',
-    expectedCloseDate: new Date(),
-    probability: 25,
+    probability: 50,
+    expectedCloseDate: '',
     notes: '',
     tags: [],
     contactId: '',
-    assignedToId: ''
+    assignedToId: '',
   });
 
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -30,17 +32,43 @@ const DealForm: React.FC<DealFormProps> = ({ deal, isEditing, onSubmit, onClose 
       setFormData({
         title: deal.title || '',
         description: deal.description || '',
+        status: deal.status || 'OPPORTUNITY',
         value: deal.value || 0,
-        status: deal.status || 'Prospecting',
-        expectedCloseDate: deal.expectedCloseDate ? new Date(deal.expectedCloseDate) : new Date(),
-        probability: deal.probability || 25,
+        probability: deal.probability || 50,
+        expectedCloseDate: deal.expectedCloseDate ? new Date(deal.expectedCloseDate).toISOString().split('T')[0] : '',
         notes: deal.notes || '',
         tags: deal.tags || [],
         contactId: deal.contactId || '',
-        assignedToId: deal.assignedToId || ''
+        assignedToId: deal.assignedToId || '',
       });
     }
+    
+    // Load contacts and users
+    loadContacts();
+    loadUsers();
   }, [deal]);
+
+  const loadContacts = async () => {
+    try {
+      // This would fetch contacts from the backend
+      // const response = await apiService.getData<Contact[]>('/contacts');
+      // setContacts(response);
+      setContacts([]); // Empty for now, will be populated when API is ready
+    } catch (error) {
+      console.error('Failed to load contacts:', error);
+    }
+  };
+
+  const loadUsers = async () => {
+    try {
+      // This would fetch users from the backend
+      // const response = await apiService.getData<User[]>('/users');
+      // setUsers(response);
+      setUsers([]); // Empty for now, will be populated when API is ready
+    } catch (error) {
+      console.error('Failed to load users:', error);
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -99,11 +127,12 @@ const DealForm: React.FC<DealFormProps> = ({ deal, isEditing, onSubmit, onClose 
     e.preventDefault();
     
     if (validateForm()) {
-      const submitData = {
+      // Convert form data to proper types
+      const submitData: Partial<Deal> = {
         ...formData,
-        tags: formData.tags || [],
-        value: parseFloat(formData.value?.toString() || '0'),
-        probability: parseInt(formData.probability?.toString() || '0')
+        expectedCloseDate: formData.expectedCloseDate ? new Date(formData.expectedCloseDate) : undefined,
+        value: Number(formData.value),
+        probability: Number(formData.probability),
       };
       
       onSubmit(submitData);
@@ -237,10 +266,15 @@ const DealForm: React.FC<DealFormProps> = ({ deal, isEditing, onSubmit, onClose 
                 className={errors.contactId ? 'error' : ''}
               >
                 <option value="">Select a contact</option>
-                {/* This would be populated with actual contacts from the backend */}
-                <option value="1">John Doe (john@example.com)</option>
-                <option value="2">Jane Smith (jane@example.com)</option>
-                <option value="3">Bob Johnson (bob@example.com)</option>
+                {contacts.length > 0 ? (
+                  contacts.map(contact => (
+                    <option key={contact.id} value={contact.id}>
+                      {contact.firstName} {contact.lastName} ({contact.email})
+                    </option>
+                  ))
+                ) : (
+                  <option value="" disabled>No contacts available</option>
+                )}
               </select>
               {errors.contactId && <span className="error-message">{errors.contactId}</span>}
             </div>
@@ -254,10 +288,15 @@ const DealForm: React.FC<DealFormProps> = ({ deal, isEditing, onSubmit, onClose 
                 onChange={handleInputChange}
               >
                 <option value="">Unassigned</option>
-                {/* This would be populated with actual users from the backend */}
-                <option value="1">Sarah Johnson</option>
-                <option value="2">Mike Chen</option>
-                <option value="3">Emily Davis</option>
+                {users.length > 0 ? (
+                  users.map(user => (
+                    <option key={user.id} value={user.id}>
+                      {user.firstName} {user.lastName}
+                    </option>
+                  ))
+                ) : (
+                  <option value="" disabled>No users available</option>
+                )}
               </select>
             </div>
           </div>
