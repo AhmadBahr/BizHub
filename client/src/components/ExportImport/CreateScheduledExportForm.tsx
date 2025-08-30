@@ -266,11 +266,13 @@ const CreateScheduledExportForm: React.FC<CreateScheduledExportFormProps> = ({
           </h3>
           <AccessibleButton
             onClick={onCancel}
-            variant="ghost"
+            variant="secondary"
             size="sm"
             ariaLabel="Close form"
             icon={<XMarkIcon className="w-5 h-5" />}
-          />
+          >
+            <span className="sr-only">Close</span>
+          </AccessibleButton>
         </div>
 
         <form onSubmit={handleSubmit} className="export-form">
@@ -430,7 +432,7 @@ const CreateScheduledExportForm: React.FC<CreateScheduledExportFormProps> = ({
                   {formData.recipients.length > 1 && (
                     <AccessibleButton
                       onClick={() => removeRecipient(index)}
-                      variant="ghost"
+                      variant="secondary"
                       size="sm"
                       ariaLabel={`Remove recipient ${index + 1}`}
                       className="remove-recipient-btn"
