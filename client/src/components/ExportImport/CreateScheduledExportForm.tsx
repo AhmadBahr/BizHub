@@ -9,23 +9,22 @@ import { useAccessibility } from '../../hooks/useAccessibility';
 import AccessibleButton from '../Accessibility/AccessibleButton';
 import './ScheduledExports.css';
 
-interface ScheduledExport {
+export interface ScheduledExport {
   id?: string;
   name: string;
-  description?: string;
+  description: string;
   entityType: 'contacts' | 'leads' | 'deals' | 'tasks' | 'analytics';
   format: 'csv' | 'excel' | 'pdf';
   schedule: 'daily' | 'weekly' | 'monthly' | 'custom';
   scheduleConfig: {
-    dayOfWeek?: number;
-    dayOfMonth?: number;
     hour?: number;
     minute?: number;
-    timezone?: string;
+    dayOfWeek?: number; // 0-6 for Sunday-Saturday
+    dayOfMonth?: number; // 1-31
     customCron?: string;
   };
-  filters?: Record<string, any>;
   recipients: string[];
+  filters: Record<string, any>;
   isActive: boolean;
   lastRun?: Date;
   nextRun?: Date;
@@ -37,7 +36,7 @@ interface CreateScheduledExportFormProps {
   scheduledExport?: ScheduledExport;
   onSave: (exportData: ScheduledExport) => void;
   onCancel: () => void;
-  isEditing?: boolean;
+  isEditing: boolean;
 }
 
 const CreateScheduledExportForm: React.FC<CreateScheduledExportFormProps> = ({
@@ -55,7 +54,7 @@ const CreateScheduledExportForm: React.FC<CreateScheduledExportFormProps> = ({
     scheduleConfig: {
       hour: 9,
       minute: 0,
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      // timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     },
     filters: {},
     recipients: [''],
@@ -366,9 +365,7 @@ const CreateScheduledExportForm: React.FC<CreateScheduledExportFormProps> = ({
                   onChange={(e) => handleScheduleConfigChange('hour', parseInt(e.target.value))}
                 >
                   {Array.from({ length: 24 }, (_, i) => i).map(hour => (
-                    <option key={hour} value={hour}>
-                      {hour.toString().padStart(2, '0')}:00
-                    </option>
+                    <option key={hour} value={hour}>{String(hour).padStart(2, '0')}:00</option>
                   ))}
                 </select>
               </div>
@@ -385,24 +382,6 @@ const CreateScheduledExportForm: React.FC<CreateScheduledExportFormProps> = ({
                       {minute.toString().padStart(2, '0')}
                     </option>
                   ))}
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="timezone">Timezone</label>
-                <select
-                  id="timezone"
-                  value={formData.scheduleConfig.timezone || ''}
-                  onChange={(e) => handleScheduleConfigChange('timezone', e.target.value)}
-                >
-                  <option value="UTC">UTC</option>
-                  <option value="America/New_York">Eastern Time</option>
-                  <option value="America/Chicago">Central Time</option>
-                  <option value="America/Denver">Mountain Time</option>
-                  <option value="America/Los_Angeles">Pacific Time</option>
-                  <option value="Europe/London">London</option>
-                  <option value="Europe/Paris">Paris</option>
-                  <option value="Asia/Tokyo">Tokyo</option>
                 </select>
               </div>
             </div>
