@@ -194,10 +194,8 @@ npm run start:prod
 ### Docker
 ```bash
 docker-compose up -d
-```
 
-## 📚 Docs
-- Full guide: `docs/README_FULL.md`
+```
 
 ## 📝 License
 MIT © BizHub contributors — see [LICENSE](LICENSE).
