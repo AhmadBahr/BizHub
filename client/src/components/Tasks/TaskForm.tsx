@@ -1,27 +1,42 @@
 import React, { useState, useEffect } from 'react';
-import type { Task } from '../../types';
+import type { Task, User } from '../../types';
 import './TaskForm.css';
 
 interface TaskFormProps {
-  task?: Task | null;
+  task?: Partial<Task>;
   isEditing: boolean;
-  onSubmit: (data: Partial<Task>) => void;
+  onSubmit: (task: Partial<Task>) => void;
   onClose: () => void;
 }
 
+interface TaskFormData {
+  title: string;
+  description: string;
+  status: string;
+  priority: string;
+  dueDate: string;
+  notes: string;
+  tags: string[];
+  assignedToId: string;
+  relatedToType: string;
+  relatedToId: string;
+}
+
 const TaskForm: React.FC<TaskFormProps> = ({ task, isEditing, onSubmit, onClose }) => {
-  const [formData, setFormData] = useState<Partial<Task>>({
+  const [formData, setFormData] = useState<TaskFormData>({
     title: '',
     description: '',
-    status: 'Pending',
-    priority: 'Medium',
-    dueDate: new Date(),
-    estimatedHours: 1,
-    tags: [],
+    status: 'PENDING',
+    priority: 'MEDIUM',
+    dueDate: '',
     notes: '',
-    assignedToId: ''
+    tags: [],
+    assignedToId: '',
+    relatedToType: '',
+    relatedToId: '',
   });
 
+  const [users, setUsers] = useState<User[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -29,29 +44,41 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, isEditing, onSubmit, onClose 
       setFormData({
         title: task.title || '',
         description: task.description || '',
-        status: task.status || 'Not Started',
-        priority: task.priority || 'Medium',
-        category: task.category || 'General',
-        dueDate: task.dueDate ? new Date(task.dueDate) : new Date(),
-        estimatedHours: task.estimatedHours || 1,
+        status: task.status || 'PENDING',
+        priority: task.priority || 'MEDIUM',
+        dueDate: task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : '',
         notes: task.notes || '',
         tags: task.tags || [],
         assignedToId: task.assignedToId || '',
+        relatedToType: task.relatedToType || '',
         relatedToId: task.relatedToId || '',
-        relatedToType: task.relatedToType || 'Lead'
       });
     }
+    
+    // Load users
+    loadUsers();
   }, [task]);
+
+  const loadUsers = async () => {
+    try {
+      // This would fetch users from the backend
+      // const response = await apiService.getData<User[]>('/users');
+      // setUsers(response);
+      setUsers([]); // Empty for now, will be populated when API is ready
+    } catch (error) {
+      console.error('Failed to load users:', error);
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'estimatedHours' ? parseFloat(value) || 0 : value
+      [name]: value
     }));
     
     // Clear error when user starts typing
-    if (errors[name]) {
+    if (errors[name as keyof typeof errors]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
   };
@@ -68,10 +95,6 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, isEditing, onSubmit, onClose 
       newErrors.title = 'Title is required';
     }
 
-    if ((formData.estimatedHours || 0) < 0.1) {
-      newErrors.estimatedHours = 'Estimated hours must be at least 0.1';
-    }
-
     if (formData.dueDate && new Date(formData.dueDate) < new Date()) {
       newErrors.dueDate = 'Due date cannot be in the past';
     }
@@ -84,10 +107,10 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, isEditing, onSubmit, onClose 
     e.preventDefault();
     
     if (validateForm()) {
-      const submitData = {
+      const submitData: Partial<Task> = {
         ...formData,
+        dueDate: formData.dueDate ? new Date(formData.dueDate) : new Date(),
         tags: formData.tags || [],
-        estimatedHours: parseFloat(formData.estimatedHours?.toString() || '1')
       };
       
       onSubmit(submitData);
@@ -139,27 +162,6 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, isEditing, onSubmit, onClose 
             </div>
 
             <div className="form-group">
-              <label htmlFor="category">Category</label>
-              <select
-                id="category"
-                name="category"
-                value={formData.category || 'General'}
-                onChange={handleInputChange}
-              >
-                <option value="General">General</option>
-                <option value="Sales">Sales</option>
-                <option value="Marketing">Marketing</option>
-                <option value="Development">Development</option>
-                <option value="Support">Support</option>
-                <option value="Administration">Administration</option>
-                <option value="Research">Research</option>
-                <option value="Planning">Planning</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="form-row">
-            <div className="form-group">
               <label htmlFor="status">Status</label>
               <select
                 id="status"
@@ -174,50 +176,37 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, isEditing, onSubmit, onClose 
                 <option value="Cancelled">Cancelled</option>
               </select>
             </div>
+          </div>
 
+          <div className="form-row">
             <div className="form-group">
               <label htmlFor="priority">Priority</label>
               <select
                 id="priority"
                 name="priority"
-                value={formData.priority || 'Medium'}
+                value={formData.priority}
                 onChange={handleInputChange}
+                className={errors.priority ? 'error' : ''}
               >
-                <option value="Low">Low</option>
-                <option value="Medium">Medium</option>
-                <option value="High">High</option>
+                <option value="LOW">Low</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="HIGH">High</option>
+                <option value="URGENT">Urgent</option>
               </select>
+              {errors.priority && <span className="error-message">{errors.priority}</span>}
             </div>
-          </div>
 
-          <div className="form-row">
             <div className="form-group">
               <label htmlFor="dueDate">Due Date</label>
               <input
                 type="date"
                 id="dueDate"
                 name="dueDate"
-                value={formData.dueDate ? formData.dueDate.toISOString().split('T')[0] : ''}
+                value={formData.dueDate}
                 onChange={handleInputChange}
                 className={errors.dueDate ? 'error' : ''}
               />
               {errors.dueDate && <span className="error-message">{errors.dueDate}</span>}
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="estimatedHours">Estimated Hours</label>
-              <input
-                type="number"
-                id="estimatedHours"
-                name="estimatedHours"
-                value={formData.estimatedHours || ''}
-                onChange={handleInputChange}
-                className={errors.estimatedHours ? 'error' : ''}
-                placeholder="1.0"
-                min="0.1"
-                step="0.1"
-              />
-              {errors.estimatedHours && <span className="error-message">{errors.estimatedHours}</span>}
             </div>
           </div>
 
@@ -229,14 +218,20 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, isEditing, onSubmit, onClose 
                 name="assignedToId"
                 value={formData.assignedToId || ''}
                 onChange={handleInputChange}
+                className={errors.assignedToId ? 'error' : ''}
               >
-                <option value="">Unassigned</option>
-                {/* This would be populated with actual users from the backend */}
-                <option value="1">Alex Thompson</option>
-                <option value="2">Maria Garcia</option>
-                <option value="3">James Wilson</option>
-                <option value="4">Lisa Chen</option>
+                <option value="">Select assignee</option>
+                {users.length > 0 ? (
+                  users.map(user => (
+                    <option key={user.id} value={user.id}>
+                      {user.firstName} {user.lastName}
+                    </option>
+                  ))
+                ) : (
+                  <option value="" disabled>No users available</option>
+                )}
               </select>
+              {errors.assignedToId && <span className="error-message">{errors.assignedToId}</span>}
             </div>
 
             <div className="form-group">
@@ -258,18 +253,20 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, isEditing, onSubmit, onClose 
 
           {formData.relatedToType !== 'None' && (
             <div className="form-group">
-              <label htmlFor="relatedToId">{formData.relatedToType} Selection</label>
+              <label htmlFor="relatedToId">Related To</label>
               <select
                 id="relatedToId"
                 name="relatedToId"
                 value={formData.relatedToId || ''}
                 onChange={handleInputChange}
+                disabled={!formData.relatedToType}
               >
-                <option value="">Select a {formData.relatedToType?.toLowerCase()}</option>
-                {/* This would be populated with actual data from the backend */}
-                <option value="1">Sample {formData.relatedToType} 1</option>
-                <option value="2">Sample {formData.relatedToType} 2</option>
-                <option value="3">Sample {formData.relatedToType} 3</option>
+                <option value="">Select {formData.relatedToType || 'item'}</option>
+                {formData.relatedToType ? (
+                  <option value="" disabled>No {formData.relatedToType} available</option>
+                ) : (
+                  <option value="" disabled>Select a type first</option>
+                )}
               </select>
             </div>
           )}
@@ -331,8 +328,8 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, isEditing, onSubmit, onClose 
               <div className="preview-title">{formData.title || 'Task Title'}</div>
               <div className="preview-details">
                 <span>📅 {formData.dueDate ? new Date(formData.dueDate).toISOString().split('T')[0] : 'No due date'}</span>
-                <span>⏱️ {formData.estimatedHours || 1}h</span>
-                <span>📁 {formData.category || 'General'}</span>
+                <span>🎯 {formData.priority}</span>
+                <span>👤 {users.find(u => u.id === formData.assignedToId)?.firstName || 'Unassigned'}</span>
               </div>
             </div>
           </div>

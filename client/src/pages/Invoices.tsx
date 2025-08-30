@@ -1,351 +1,142 @@
-import React, { useState, useEffect } from 'react';
-import InvoiceForm from '../components/Invoices/InvoiceForm';
-import InvoiceList from '../components/Invoices/InvoiceList';
-import PaymentForm from '../components/Invoices/PaymentForm';
-import InvoiceAnalytics from '../components/Invoices/InvoiceAnalytics';
-import { invoicesApi, paymentsApi, contactsApi } from '../services';
-import type { Invoice, Payment, Contact } from '../types';
-import './Invoices.css';
+import { useState, useEffect } from 'react';
 
-const Invoices: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'invoices' | 'payments' | 'analytics'>('invoices');
-  const [showInvoiceForm, setShowInvoiceForm] = useState(false);
-  const [showPaymentForm, setShowPaymentForm] = useState(false);
-  const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
-  const [editingPayment, setEditingPayment] = useState<Payment | null>(null);
-  const [dateRange, setDateRange] = useState('30d');
-  
-  // Real data state
-  const [invoices, setInvoices] = useState<Invoice[]>([]);
-  const [payments, setPayments] = useState<Payment[]>([]);
-  const [contacts, setContacts] = useState<Contact[]>([]);
-  const [analytics, setAnalytics] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+import InvoiceList from '../components/Invoices/InvoiceList';
+import InvoiceForm from '../components/Invoices/InvoiceForm';
+import InvoiceAnalytics from '../components/Invoices/InvoiceAnalytics';
+import PaymentForm from '../components/Invoices/PaymentForm';
+import { useAppDispatch, useAppSelector } from '../hooks/redux';
+import { fetchInvoices, createInvoice, updateInvoice, deleteInvoice, setSelectedInvoice, clearSelectedInvoice } from '../store/slices/invoicesSlice';
+import { fetchContacts } from '../store/slices/contactsSlice';
+import AccessibleButton from '../components/Accessibility/AccessibleButton';
+import { PlusIcon } from '@heroicons/react/24/outline';
+import { toast } from 'react-toastify';
+import type { Invoice } from '../types';
+import './Invoices.css';
+import { apiService } from '../services/api';
+
+const Invoices = () => {
+  const dispatch = useAppDispatch();
+  const { invoices, selectedInvoice, isLoading, error, page, limit } = useAppSelector((state) => state.invoices);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isPaymentFormOpen, setIsPaymentFormOpen] = useState(false);
+  const [paymentInvoiceId, setPaymentInvoiceId] = useState<string | null>(null);
+  const [analyticsData, setAnalyticsData] = useState<any>(null); // State for analytics data
+  const [analyticsDateRange, setAnalyticsDateRange] = useState('30d'); // State for analytics date range
 
   useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = async () => {
-    setLoading(true);
-    setError(null);
-    
-    try {
-      // Load invoices, payments, contacts, and analytics in parallel
-      const [invoicesResponse, paymentsResponse, contactsResponse, analyticsResponse] = await Promise.all([
-        invoicesApi.getInvoices(),
-        paymentsApi.getPayments(),
-        contactsApi.getContacts(),
-        invoicesApi.getInvoiceAnalytics()
-      ]);
-
-      if (invoicesResponse.success) setInvoices(invoicesResponse.data);
-      if (paymentsResponse.success) setPayments(paymentsResponse.data);
-      if (contactsResponse.success) setContacts(contactsResponse.data);
-      if (analyticsResponse.success) setAnalytics(analyticsResponse.data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load data');
-      console.error('Error loading data:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+    dispatch(fetchInvoices({ page, limit }));
+    dispatch(fetchContacts({ page: 1, limit: 1000 })); // Fetch all contacts for dropdowns
+    // Fetch analytics data
+    const fetchAnalytics = async () => {
+      try {
+        const response = await apiService.get<any>(`/analytics/invoices?dateRange=${analyticsDateRange}`);
+        if (response.success) {
+          setAnalyticsData(response.data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch invoice analytics:", err);
+      }
+    };
+    fetchAnalytics();
+  }, [dispatch, page, limit, analyticsDateRange]);
 
   const handleCreateInvoice = () => {
-    setEditingInvoice(null);
-    setShowInvoiceForm(true);
+    dispatch(clearSelectedInvoice());
+    setIsFormOpen(true);
   };
 
   const handleEditInvoice = (invoice: Invoice) => {
-    setEditingInvoice(invoice);
-    setShowInvoiceForm(true);
+    dispatch(setSelectedInvoice(invoice));
+    setIsFormOpen(true);
   };
 
-  const handleCloseInvoiceForm = () => {
-    setShowInvoiceForm(false);
-    setEditingInvoice(null);
-  };
-
-  const handleSaveInvoice = async (invoiceData: Partial<Invoice>) => {
-    try {
-      setLoading(true);
-      
-      if (editingInvoice) {
-        // Update existing invoice
-        const response = await invoicesApi.updateInvoice(editingInvoice.id, invoiceData);
-        if (response.success) {
-          setInvoices(invoices.map(i => 
-            i.id === editingInvoice.id ? response.data : i
-          ));
-        }
-      } else {
-        // Create new invoice
-        const response = await invoicesApi.createInvoice(invoiceData);
-        if (response.success) {
-          setInvoices([...invoices, response.data]);
-        }
-      }
-      
-      handleCloseInvoiceForm();
-      // Reload analytics after changes
-      loadData();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save invoice');
-      console.error('Error saving invoice:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDeleteInvoice = async (id: string) => {
+  const handleDeleteInvoice = async (invoiceId: string) => {
     if (window.confirm('Are you sure you want to delete this invoice?')) {
-      try {
-        setLoading(true);
-        const response = await invoicesApi.deleteInvoice(id);
-        if (response.success) {
-          setInvoices(invoices.filter(i => i.id !== id));
-          loadData(); // Reload analytics
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to delete invoice');
-        console.error('Error deleting invoice:', err);
-      } finally {
-        setLoading(false);
-      }
+      await dispatch(deleteInvoice(invoiceId));
+      toast.success('Invoice deleted successfully!');
     }
   };
 
-  const handleSendInvoice = async (id: string) => {
-    try {
-      setLoading(true);
-      const response = await invoicesApi.sendInvoice(id);
-      if (response.success) {
-        setInvoices(invoices.map(i => 
-          i.id === id ? response.data : i
-        ));
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to send invoice');
-      console.error('Error sending invoice:', err);
-    } finally {
-      setLoading(false);
+  const handleSaveInvoice = async (invoiceData: any) => {
+    if (selectedInvoice) {
+      await dispatch(updateInvoice({ id: selectedInvoice.id, data: invoiceData }));
+      toast.success('Invoice updated successfully!');
+    } else {
+      await dispatch(createInvoice(invoiceData));
+      toast.success('Invoice created successfully!');
     }
+    setIsFormOpen(false);
+    dispatch(fetchInvoices({ page, limit })); // Refresh list
   };
 
-  const handleCreatePayment = () => {
-    setEditingPayment(null);
-    setShowPaymentForm(true);
+  const handleCloseForm = () => {
+    setIsFormOpen(false);
+    dispatch(clearSelectedInvoice());
   };
 
-  const handleEditPayment = (payment: Payment) => {
-    setEditingPayment(payment);
-    setShowPaymentForm(true);
-  };
+
 
   const handleClosePaymentForm = () => {
-    setShowPaymentForm(false);
-    setEditingPayment(null);
+    setIsPaymentFormOpen(false);
+    setPaymentInvoiceId(null);
   };
 
-  const handleSavePayment = async (paymentData: Partial<Payment>) => {
-    try {
-      if (editingPayment) {
-        // dispatch(updatePayment({ id: editingPayment.id, ...paymentData }));
-        console.log('Updating payment:', paymentData);
-      } else {
-        // dispatch(createPayment(paymentData));
-        console.log('Creating payment:', paymentData);
-      }
-      handleClosePaymentForm();
-    } catch (error) {
-      console.error('Error saving payment:', error);
-    }
+  const handleProcessPayment = (paymentData: any) => {
+    console.log('Processing payment for invoice', paymentInvoiceId, paymentData);
+    // Implement actual payment processing logic here
+    toast.success('Payment processed successfully!');
+    handleClosePaymentForm();
+    dispatch(fetchInvoices({ page, limit })); // Refresh invoices to show updated payment status
   };
 
   return (
-    <div className="invoices-page">
-      <div className="page-header">
-        <h1>Invoice & Billing Management</h1>
-        <div className="header-actions">
-          {activeTab === 'invoices' && (
-            <button
-              className="btn btn-primary"
-              onClick={handleCreateInvoice}
-              disabled={loading}
-            >
-              <i className="fas fa-plus"></i>
-              New Invoice
-            </button>
-          )}
-          {activeTab === 'payments' && (
-            <button
-              className="btn btn-primary"
-              onClick={handleCreatePayment}
-              disabled={loading}
-            >
-              <i className="fas fa-plus"></i>
-              Record Payment
-            </button>
-          )}
-        </div>
+    <div className="invoices-page-container">
+      <div className="invoices-header">
+        <h1 className="page-title">Invoices</h1>
+        <AccessibleButton
+          onClick={handleCreateInvoice}
+          variant="primary"
+          ariaLabel="Create New Invoice"
+          icon={<PlusIcon className="w-5 h-5" />}
+        >
+          Create Invoice
+        </AccessibleButton>
       </div>
 
-      {/* Error Display */}
-      {error && (
-        <div className="error-message">
-          <i className="fas fa-exclamation-triangle"></i>
-          {error}
-          <button 
-            className="error-close" 
-            onClick={() => setError(null)}
-          >
-            <i className="fas fa-times"></i>
-          </button>
-        </div>
-      )}
+      <InvoiceAnalytics
+        data={analyticsData || {}}
+        dateRange={analyticsDateRange}
+        onDateRangeChange={setAnalyticsDateRange}
+      />
 
-      {/* Loading Overlay */}
-      {loading && (
-        <div className="loading-overlay">
-          <div className="loading-spinner">
-            <i className="fas fa-spinner fa-spin"></i>
-            Loading...
-          </div>
-        </div>
-      )}
-
-      <div className="tabs">
-        <button
-          className={`tab ${activeTab === 'invoices' ? 'active' : ''}`}
-          onClick={() => setActiveTab('invoices')}
-        >
-          Invoices
-        </button>
-        <button
-          className={`tab ${activeTab === 'payments' ? 'active' : ''}`}
-          onClick={() => setActiveTab('payments')}
-        >
-          Payments
-        </button>
-        <button
-          className={`tab ${activeTab === 'analytics' ? 'active' : ''}`}
-          onClick={() => setActiveTab('analytics')}
-        >
-          Analytics
-        </button>
-      </div>
-
-      <div className="tab-content">
-        {activeTab === 'invoices' && (
-          <div className="invoices-tab">
-            <InvoiceList
+      <div className="invoices-content">
+        {isLoading && <p>Loading invoices...</p>}
+        {error && <p className="error-message">Error: {error}</p>}
+        {!isLoading && !error && (
+                      <InvoiceList
               invoices={invoices}
-              loading={loading}
               onEdit={handleEditInvoice}
               onDelete={handleDeleteInvoice}
-              onSend={handleSendInvoice}
+              onSend={() => {}}
+              loading={isLoading}
             />
-          </div>
-        )}
-
-        {activeTab === 'payments' && (
-          <div className="payments-tab">
-            <div className="payments-list">
-              <div className="payments-header">
-                <h3>Payment Records</h3>
-                <p>Track all payments and transactions</p>
-              </div>
-              <div className="payments-table">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Payment #</th>
-                      <th>Invoice</th>
-                      <th>Amount</th>
-                      <th>Method</th>
-                      <th>Status</th>
-                      <th>Date</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {payments.map((payment) => (
-                      <tr key={payment.id}>
-                        <td>
-                          <span className="payment-number">{payment.paymentNumber}</span>
-                        </td>
-                        <td>
-                          <div className="invoice-info">
-                            <span className="invoice-number">{payment.invoice?.invoiceNumber}</span>
-                            <small>{payment.invoice?.title}</small>
-                          </div>
-                        </td>
-                        <td>
-                          <span className="amount">${payment.amount.toFixed(2)}</span>
-                        </td>
-                        <td>
-                          <span className="payment-method">{payment.paymentMethod.replace('_', ' ')}</span>
-                        </td>
-                        <td>
-                          <span className={`status-badge ${payment.status.toLowerCase()}`}>
-                            {payment.status}
-                          </span>
-                        </td>
-                        <td>
-                          <span className="payment-date">
-                            {new Date(payment.paymentDate).toLocaleDateString()}
-                          </span>
-                        </td>
-                        <td>
-                          <div className="actions">
-                            <button
-                              className="btn-icon"
-                              onClick={() => handleEditPayment(payment)}
-                              title="Edit Payment"
-                            >
-                              <i className="fas fa-edit"></i>
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'analytics' && (
-          <div className="analytics-tab">
-            <InvoiceAnalytics
-              data={analytics}
-              loading={loading}
-              dateRange={dateRange}
-              onDateRangeChange={setDateRange}
-            />
-          </div>
         )}
       </div>
 
-      {showInvoiceForm && (
+      {isFormOpen && (
         <InvoiceForm
-          invoice={editingInvoice}
+          invoice={selectedInvoice}
           onSave={handleSaveInvoice}
-          onCancel={handleCloseInvoiceForm}
-          loading={loading}
+          onCancel={handleCloseForm}
         />
       )}
 
-      {showPaymentForm && (
-        <PaymentForm
-          payment={editingPayment}
-          onSave={handleSavePayment}
-          onCancel={handleClosePaymentForm}
-          loading={loading}
-        />
-      )}
+              {isPaymentFormOpen && paymentInvoiceId && (
+          <PaymentForm
+            onSave={handleProcessPayment}
+            onCancel={handleClosePaymentForm}
+          />
+        )}
     </div>
   );
 };

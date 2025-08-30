@@ -23,9 +23,6 @@ export class NotificationsService {
       },
     });
 
-    // Note: Real-time notification would be sent via events or a different pattern
-    // to avoid circular dependency
-
     return notification;
   }
 

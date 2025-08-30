@@ -15,7 +15,7 @@ const api: AxiosInstance = axios.create({
 // Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('accessToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -32,7 +32,7 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       // Handle unauthorized access
-      localStorage.removeItem('authToken');
+      localStorage.removeItem('accessToken');
       window.location.href = '/login';
     }
     return Promise.reject(error);
@@ -52,6 +52,9 @@ export interface BackendResponse<T> {
   message?: string;
   success: boolean;
 }
+
+// For backward compatibility - direct data access
+export type ApiResponseData<T> = T;
 
 // Pagination type
 export interface PaginationParams {
@@ -75,6 +78,12 @@ export const apiService = {
     };
   },
 
+  // GET request that returns data directly (for Redux compatibility)
+  getData: async <T>(url: string, params?: any): Promise<T> => {
+    const response = await api.get(url, { params });
+    return response.data;
+  },
+
   // POST request
   post: async <T>(url: string, data?: any): Promise<ApiResponse<T>> => {
     const response = await api.post(url, data);
@@ -83,6 +92,12 @@ export const apiService = {
       success: true,
       message: 'Success'
     };
+  },
+
+  // POST request that returns data directly (for Redux compatibility)
+  postData: async <T>(url: string, data?: any): Promise<T> => {
+    const response = await api.post(url, data);
+    return response.data;
   },
 
   // PUT request
@@ -95,6 +110,12 @@ export const apiService = {
     };
   },
 
+  // PUT request that returns data directly (for Redux compatibility)
+  putData: async <T>(url: string, data?: any): Promise<T> => {
+    const response = await api.put(url, data);
+    return response.data;
+  },
+
   // PATCH request
   patch: async <T>(url: string, data?: any): Promise<ApiResponse<T>> => {
     const response = await api.patch(url, data);
@@ -105,6 +126,12 @@ export const apiService = {
     };
   },
 
+  // PATCH request that returns data directly (for Redux compatibility)
+  patchData: async <T>(url: string, data?: any): Promise<T> => {
+    const response = await api.patch(url, data);
+    return response.data;
+  },
+
   // DELETE request
   delete: async <T>(url: string): Promise<ApiResponse<T>> => {
     const response = await api.delete(url);
@@ -113,6 +140,12 @@ export const apiService = {
       success: true,
       message: 'Success'
     };
+  },
+
+  // DELETE request that returns data directly (for Redux compatibility)
+  deleteData: async <T>(url: string): Promise<T> => {
+    const response = await api.delete(url);
+    return response.data;
   },
 };
 

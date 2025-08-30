@@ -52,7 +52,7 @@ export const fetchTasks = createAsyncThunk(
       if (priority) params.append('priority', priority);
       if (assignedTo) params.append('assignedTo', assignedTo);
       
-      const response = await apiService.get<{ tasks: Task[]; total: number; page: number; limit: number }>(`/tasks?${params.toString()}`);
+      const response = await apiService.getData<{ tasks: Task[]; total: number; page: number; limit: number }>(`/tasks?${params.toString()}`);
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch tasks');
@@ -64,7 +64,7 @@ export const fetchTaskById = createAsyncThunk(
   'tasks/fetchTaskById',
   async (id: string, { rejectWithValue }) => {
     try {
-      const response = await apiService.get<Task>(`/tasks/${id}`);
+      const response = await apiService.getData<Task>(`/tasks/${id}`);
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch task');
@@ -76,7 +76,7 @@ export const createTask = createAsyncThunk(
   'tasks/createTask',
   async (taskData: Partial<Task>, { rejectWithValue }) => {
     try {
-      const response = await apiService.post<Task>('/tasks', taskData);
+      const response = await apiService.postData<Task>('/tasks', taskData);
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to create task');
@@ -88,7 +88,7 @@ export const updateTask = createAsyncThunk(
   'tasks/updateTask',
   async ({ id, data }: { id: string; data: Partial<Task> }, { rejectWithValue }) => {
     try {
-      const response = await apiService.put<Task>(`/tasks/${id}`, data);
+      const response = await apiService.putData<Task>(`/tasks/${id}`, data);
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to update task');
@@ -100,7 +100,7 @@ export const deleteTask = createAsyncThunk(
   'tasks/deleteTask',
   async (id: string, { rejectWithValue }) => {
     try {
-      await apiService.delete(`/tasks/${id}`);
+      await apiService.deleteData<string>(`/tasks/${id}`);
       return id;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to delete task');
@@ -112,7 +112,7 @@ export const updateTaskStatus = createAsyncThunk(
   'tasks/updateTaskStatus',
   async ({ id, status }: { id: string; status: string }, { rejectWithValue }) => {
     try {
-      const response = await apiService.patch<Task>(`/tasks/${id}/status`, { status });
+      const response = await apiService.patchData<Task>(`/tasks/${id}/status`, { status });
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to update task status');
@@ -124,7 +124,7 @@ export const updateTaskPriority = createAsyncThunk(
   'tasks/updateTaskPriority',
   async ({ id, priority }: { id: string; priority: string }, { rejectWithValue }) => {
     try {
-      const response = await apiService.patch<Task>(`/tasks/${id}/priority`, { priority });
+      const response = await apiService.patchData<Task>(`/tasks/${id}/priority`, { priority });
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to update task priority');

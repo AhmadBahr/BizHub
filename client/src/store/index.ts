@@ -6,6 +6,10 @@ import dealsReducer from './slices/dealsSlice';
 import dashboardReducer from './slices/dashboardSlice';
 import tasksReducer from './slices/tasksSlice';
 import integrationsReducer from './slices/integrationsSlice';
+import invoicesReducer from './slices/invoicesSlice';
+import quotesReducer from './slices/quotesSlice';
+import supportReducer from './slices/supportSlice';
+import usersReducer from './slices/usersSlice';
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +20,10 @@ export const store = configureStore({
     dashboard: dashboardReducer,
     tasks: tasksReducer,
     integrations: integrationsReducer,
+    invoices: invoicesReducer,
+    quotes: quotesReducer,
+    support: supportReducer,
+    users: usersReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

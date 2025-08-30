@@ -51,8 +51,9 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({
     return colors[priority] || '#6b7280';
   };
 
-  const isOverdue = (dateString: string) => {
-    return new Date(dateString) < new Date();
+  const isOverdue = (date: string | Date) => {
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    return dateObj < new Date();
   };
 
   const formatDate = (date: Date) => {
@@ -201,7 +202,7 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({
                         <div className="task-title">{task.title}</div>
                         <div className="task-meta">
                           <span className="task-status">{task.status}</span>
-                          {isOverdue(task.dueDate?.toISOString() || '') && (
+                          {isOverdue(task.dueDate || '') && (
                             <span className="task-overdue">Overdue</span>
                           )}
                         </div>
@@ -291,7 +292,7 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({
                         <p className="task-description">{task.description}</p>
                       )}
                       
-                      {task.tags && task.tags.length > 0 && (
+                      {task.tags?.length > 0 && (
                         <div className="task-tags">
                           {task.tags.map((tag, index) => (
                             <span key={index} className="task-tag">{tag}</span>

@@ -48,7 +48,7 @@ export const fetchLeads = createAsyncThunk(
       if (status) params.append('status', status);
       if (source) params.append('source', source);
       
-      const response = await apiService.get<{ leads: Lead[]; total: number; page: number; limit: number }>(`/leads?${params.toString()}`);
+      const response = await apiService.getData<{ leads: Lead[]; total: number; page: number; limit: number }>(`/leads?${params.toString()}`);
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch leads');
@@ -60,7 +60,7 @@ export const fetchLeadById = createAsyncThunk(
   'leads/fetchLeadById',
   async (id: string, { rejectWithValue }) => {
     try {
-      const response = await apiService.get<Lead>(`/leads/${id}`);
+      const response = await apiService.getData<Lead>(`/leads/${id}`);
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch lead');
@@ -72,7 +72,7 @@ export const createLead = createAsyncThunk(
   'leads/createLead',
   async (leadData: Partial<Lead>, { rejectWithValue }) => {
     try {
-      const response = await apiService.post<Lead>('/leads', leadData);
+      const response = await apiService.postData<Lead>('/leads', leadData);
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to create lead');
@@ -84,7 +84,7 @@ export const updateLead = createAsyncThunk(
   'leads/updateLead',
   async ({ id, data }: { id: string; data: Partial<Lead> }, { rejectWithValue }) => {
     try {
-      const response = await apiService.put<Lead>(`/leads/${id}`, data);
+      const response = await apiService.putData<Lead>(`/leads/${id}`, data);
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to update lead');
@@ -108,7 +108,7 @@ export const updateLeadScore = createAsyncThunk(
   'leads/updateLeadScore',
   async ({ id, score }: { id: string; score: number }, { rejectWithValue }) => {
     try {
-      const response = await apiService.patch<Lead>(`/leads/${id}/score`, { score });
+      const response = await apiService.patchData<Lead>(`/leads/${id}/score`, { score });
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to update lead score');

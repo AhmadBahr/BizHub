@@ -23,7 +23,7 @@ export const fetchDashboardMetrics = createAsyncThunk(
   'dashboard/fetchMetrics',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await apiService.get<DashboardMetrics>('/dashboard/metrics');
+      const response = await apiService.getData<DashboardMetrics>('/dashboard/metrics');
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch dashboard metrics');
@@ -35,7 +35,7 @@ export const fetchRecentActivities = createAsyncThunk(
   'dashboard/fetchRecentActivities',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await apiService.get<Activity[]>('/dashboard/activities/recent');
+      const response = await apiService.getData<Activity[]>('/dashboard/activities/recent');
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch recent activities');
@@ -47,7 +47,7 @@ export const fetchTopDeals = createAsyncThunk(
   'dashboard/fetchTopDeals',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await apiService.get<Deal[]>('/dashboard/top-deals');
+      const response = await apiService.getData<Deal[]>('/dashboard/top-deals');
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch top deals');

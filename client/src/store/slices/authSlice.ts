@@ -16,7 +16,7 @@ export const login = createAsyncThunk(
   async (credentials: { email: string; password: string }, { rejectWithValue }) => {
     try {
       console.log('Attempting login with credentials:', credentials);
-      const response = await apiService.post<AuthResponse>('/auth/login', credentials);
+      const response = await apiService.postData<AuthResponse>('/auth/login', credentials);
       console.log('Login response:', response);
       localStorage.setItem('accessToken', response.accessToken);
       localStorage.setItem('refreshToken', response.refreshToken);
@@ -42,7 +42,7 @@ export const getCurrentUser = createAsyncThunk(
   'auth/getCurrentUser',
   async (_, { dispatch }) => {
     try {
-      const response = await apiService.get<User>('/auth/me');
+      const response = await apiService.getData<User>('/auth/me');
       return response;
     } catch (error: any) {
       // If we can't get the current user, log them out
@@ -61,7 +61,7 @@ export const refreshToken = createAsyncThunk(
         throw new Error('No refresh token available');
       }
       
-      const response = await apiService.post<AuthResponse>('/auth/refresh', { refreshToken });
+      const response = await apiService.postData<AuthResponse>('/auth/refresh', { refreshToken });
       localStorage.setItem('accessToken', response.accessToken);
       localStorage.setItem('refreshToken', response.refreshToken);
       return response;

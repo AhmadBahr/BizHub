@@ -48,7 +48,7 @@ export const fetchDeals = createAsyncThunk(
       if (status) params.append('status', status);
       if (assignedTo) params.append('assignedTo', assignedTo);
       
-      const response = await apiService.get<{ deals: Deal[]; total: number; page: number; limit: number }>(`/deals?${params.toString()}`);
+      const response = await apiService.getData<{ deals: Deal[]; total: number; page: number; limit: number }>(`/deals?${params.toString()}`);
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch deals');
@@ -60,7 +60,7 @@ export const fetchDealById = createAsyncThunk(
   'deals/fetchDealById',
   async (id: string, { rejectWithValue }) => {
     try {
-      const response = await apiService.get<Deal>(`/deals/${id}`);
+      const response = await apiService.getData<Deal>(`/deals/${id}`);
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch deal');
@@ -72,7 +72,7 @@ export const createDeal = createAsyncThunk(
   'deals/createDeal',
   async (dealData: Partial<Deal>, { rejectWithValue }) => {
     try {
-      const response = await apiService.post<Deal>('/deals', dealData);
+      const response = await apiService.postData<Deal>('/deals', dealData);
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to create deal');
@@ -84,7 +84,7 @@ export const updateDeal = createAsyncThunk(
   'deals/updateDeal',
   async ({ id, data }: { id: string; data: Partial<Deal> }, { rejectWithValue }) => {
     try {
-      const response = await apiService.put<Deal>(`/deals/${id}`, data);
+      const response = await apiService.putData<Deal>(`/deals/${id}`, data);
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to update deal');
@@ -108,7 +108,7 @@ export const updateDealStatus = createAsyncThunk(
   'deals/updateDealStatus',
   async ({ id, status }: { id: string; status: string }, { rejectWithValue }) => {
     try {
-      const response = await apiService.patch<Deal>(`/deals/${id}/status`, { status });
+      const response = await apiService.patchData<Deal>(`/deals/${id}/status`, { status });
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to update deal status');
@@ -120,7 +120,7 @@ export const updateDealProbability = createAsyncThunk(
   'deals/updateDealProbability',
   async ({ id, probability }: { id: string; probability: number }, { rejectWithValue }) => {
     try {
-      const response = await apiService.patch<Deal>(`/deals/${id}/probability`, { probability });
+      const response = await apiService.patchData<Deal>(`/deals/${id}/probability`, { probability });
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to update deal probability');

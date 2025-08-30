@@ -130,7 +130,7 @@ export class AnalyticsService {
       activeDeals,
       conversionRate: Math.round(conversionRate * 10) / 10,
       averageDealSize: Math.round(averageDealSize),
-      averageSalesCycle: 45, // This could be calculated from actual data
+      averageSalesCycle: await this.calculateAverageSalesCycle(),
       stageDistribution: processedStageDistribution,
       monthlyRevenue: processedMonthlyRevenue,
       topPerformers: topPerformersWithDetails
@@ -222,7 +222,7 @@ export class AnalyticsService {
     const completionRate = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
     
     // Calculate average completion time (simplified)
-    const averageCompletionTime = 2.3; // This could be calculated from actual data
+    const averageCompletionTime = await this.calculateAverageCompletionTime();
 
     // Process priority distribution
     const processedPriorityDistribution = priorityDistribution.map(priority => ({
@@ -254,7 +254,7 @@ export class AnalyticsService {
         const user = await this.prisma.user.findUnique({
           where: { id: performer.assignedToId }
         });
-        const efficiency = Math.random() * 20 + 80; // Random efficiency between 80-100%
+        const efficiency = await this.calculateUserEfficiency(performer.assignedToId);
         return {
           name: user ? `${user.firstName} ${user.lastName}` : 'Unknown User',
           completed: performer._count.id,
@@ -364,15 +364,8 @@ export class AnalyticsService {
       percentage: totalLeads > 0 ? Math.round((status._count.id / totalLeads) * 100 * 10) / 10 : 0
     }));
 
-    // Process monthly leads
-    const monthlyLeadsData = [
-      { month: 'Jan', leads: Math.floor(totalLeads * 0.15) },
-      { month: 'Feb', leads: Math.floor(totalLeads * 0.18) },
-      { month: 'Mar', leads: Math.floor(totalLeads * 0.22) },
-      { month: 'Apr', leads: Math.floor(totalLeads * 0.20) },
-      { month: 'May', leads: Math.floor(totalLeads * 0.15) },
-      { month: 'Jun', leads: Math.floor(totalLeads * 0.10) }
-    ];
+    // Process monthly leads (last 6 months)
+    const monthlyLeadsData = await this.calculateMonthlyLeads();
 
     return {
       totalLeads,
@@ -419,5 +412,136 @@ export class AnalyticsService {
       'CANCELLED': '#ef4444'
     };
     return colors[status] || '#6b7280';
+  }
+
+  private async calculateAverageSalesCycle(): Promise<number> {
+    const wonDeals = await this.prisma.deal.findMany({
+      where: {
+        status: 'CLOSED_WON',
+        createdAt: { not: null },
+        actualCloseDate: { not: null }
+      },
+      select: {
+        createdAt: true,
+        actualCloseDate: true
+      }
+    });
+
+    if (wonDeals.length === 0) return 0;
+
+    const totalDays = wonDeals.reduce((sum, deal) => {
+      const days = (deal.actualCloseDate!.getTime() - deal.createdAt.getTime()) / (1000 * 60 * 60 * 24);
+      return sum + days;
+    }, 0);
+
+    return Math.round(totalDays / wonDeals.length);
+  }
+
+  private async calculateMonthlyLeads(): Promise<Array<{ month: string; leads: number }>> {
+    const months = [];
+    const now = new Date();
+    
+    for (let i = 5; i >= 0; i--) {
+      const monthStart = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const monthEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 0);
+      const monthLabel = monthStart.toLocaleString('en-US', { month: 'short' });
+      
+      const leads = await this.prisma.lead.count({
+        where: {
+          createdAt: { gte: monthStart, lte: monthEnd }
+        }
+      });
+      
+      months.push({ month: monthLabel, leads });
+    }
+    
+    return months;
+  }
+
+  private async calculateAverageCompletionTime(): Promise<number> {
+    const completedTasks = await this.prisma.task.findMany({
+      where: {
+        status: 'COMPLETED',
+        completedAt: { not: null },
+        createdAt: { not: null }
+      },
+      select: {
+        createdAt: true,
+        completedAt: true
+      }
+    });
+
+    if (completedTasks.length === 0) return 0;
+
+    const totalDays = completedTasks.reduce((sum, task) => {
+      const days = (task.completedAt!.getTime() - task.createdAt.getTime()) / (1000 * 60 * 60 * 24);
+      return sum + days;
+    }, 0);
+
+    return Math.round((totalDays / completedTasks.length) * 10) / 10;
+  }
+
+  private async calculateWeeklyCompletion(): Promise<Array<{ week: string; completed: number; created: number }>> {
+    const weeks = [];
+    const now = new Date();
+    
+    for (let i = 5; i >= 0; i--) {
+      const weekStart = new Date(now.getTime() - i * 7 * 24 * 60 * 60 * 1000);
+      const weekEnd = new Date(weekStart.getTime() + 6 * 24 * 60 * 60 * 1000);
+      const weekLabel = `Week ${6 - i}`;
+      
+      const [completed, created] = await Promise.all([
+        this.prisma.task.count({
+          where: {
+            status: 'COMPLETED',
+            completedAt: { gte: weekStart, lte: weekEnd }
+          }
+        }),
+        this.prisma.task.count({
+          where: {
+            createdAt: { gte: weekStart, lte: weekEnd }
+          }
+        })
+      ]);
+      
+      weeks.push({ week: weekLabel, completed, created });
+    }
+    
+    return weeks;
+  }
+
+  private async calculateUserEfficiency(userId: string): Promise<number> {
+    const userTasks = await this.prisma.task.findMany({
+      where: {
+        assignedToId: userId,
+        status: 'COMPLETED',
+        completedAt: { not: null }
+      },
+      select: {
+        priority: true,
+        dueDate: true,
+        completedAt: true
+      }
+    });
+
+    if (userTasks.length === 0) return 80; // Default efficiency
+
+    let totalScore = 0;
+    userTasks.forEach(task => {
+      let score = 80; // Base score
+      
+      // Bonus for completing high priority tasks
+      if (task.priority === 'HIGH') score += 10;
+      if (task.priority === 'MEDIUM') score += 5;
+      
+      // Bonus for completing on time
+      if (task.completedAt && task.dueDate && task.completedAt <= task.dueDate) {
+        score += 10;
+      }
+      
+      totalScore += score;
+    });
+
+    return Math.round((totalScore / userTasks.length) * 10) / 10;
   }
 }

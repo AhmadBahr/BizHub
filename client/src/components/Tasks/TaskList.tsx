@@ -90,8 +90,9 @@ const TaskList: React.FC<TaskListProps> = ({
     }
   };
 
-  const isOverdue = (dateString: string) => {
-    return new Date(dateString) < new Date();
+  const isOverdue = (date: string | Date) => {
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    return dateObj < new Date();
   };
 
   const handleSort = (field: keyof Task) => {
@@ -103,7 +104,7 @@ const TaskList: React.FC<TaskListProps> = ({
     }
   };
 
-  const sortedTasks = [...tasks].sort((a, b) => {
+  const sortedTasks = [...(tasks || [])].sort((a, b) => {
     const aValue = a[sortField];
     const bValue = b[sortField];
     
@@ -117,13 +118,27 @@ const TaskList: React.FC<TaskListProps> = ({
       return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
     }
     
+    // Handle date sorting
+    if (sortField === 'dueDate' || sortField === 'createdAt' || sortField === 'updatedAt') {
+      if (!aValue || !bValue) return 0;
+      // Type guard to ensure we have valid date values
+      if (typeof aValue === 'string' || aValue instanceof Date || typeof aValue === 'number') {
+        if (typeof bValue === 'string' || bValue instanceof Date || typeof bValue === 'number') {
+          const aDate = new Date(aValue);
+          const bDate = new Date(bValue);
+          return sortDirection === 'asc' ? aDate.getTime() - bDate.getTime() : bDate.getTime() - aDate.getTime();
+        }
+      }
+      return 0;
+    }
+    
     return 0;
   });
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentTasks = sortedTasks.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(tasks.length / itemsPerPage);
+  const currentTasks = sortedTasks?.slice(indexOfFirstItem, indexOfLastItem) || [];
+  const totalPages = Math.ceil((tasks?.length || 0) / itemsPerPage);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -138,7 +153,7 @@ const TaskList: React.FC<TaskListProps> = ({
     );
   }
 
-  if (tasks.length === 0) {
+  if (!tasks || tasks.length === 0) {
     return (
       <div className="task-list-empty">
         <div className="empty-icon">📋</div>
@@ -152,7 +167,7 @@ const TaskList: React.FC<TaskListProps> = ({
     <div className="task-list">
       <div className="list-header">
         <div className="list-info">
-          <h3>Tasks ({tasks.length})</h3>
+          <h3>Tasks ({tasks?.length || 0})</h3>
           <span className="list-subtitle">Manage your project tasks</span>
         </div>
         <div className="list-actions">
@@ -245,7 +260,7 @@ const TaskList: React.FC<TaskListProps> = ({
         </div>
 
         <div className="table-body">
-          {currentTasks.map((task) => (
+          {currentTasks?.map((task) => (
             <div key={task.id} className="table-row">
               <div className="table-cell task-name">
                 <div className="task-info">
@@ -301,7 +316,7 @@ const TaskList: React.FC<TaskListProps> = ({
                 </div>
               </div>
               <div className="table-cell due-date">
-                <span className={`due-date-text ${isOverdue(task.dueDate?.toISOString() || '') ? 'overdue' : ''}`}>
+                <span className={`due-date-text ${isOverdue(task.dueDate || '') ? 'overdue' : ''}`}>
                   {formatDate(task.dueDate)}
                 </span>
               </div>

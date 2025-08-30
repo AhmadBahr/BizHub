@@ -210,7 +210,7 @@ const Tasks: React.FC = () => {
 
       {showForm && (
         <TaskForm
-          task={selectedTask}
+          task={selectedTask || undefined}
           isEditing={isEditing}
           onSubmit={isEditing ? handleUpdateTask : handleCreateTask}
           onClose={handleCloseForm}

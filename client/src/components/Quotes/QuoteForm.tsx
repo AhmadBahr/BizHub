@@ -31,8 +31,8 @@ const QuoteForm: React.FC<QuoteFormProps> = ({
   });
 
   const [lineItems, setLineItems] = useState<QuoteLineItem[]>([]);
-  const [contacts] = useState<Contact[]>([]);
-  const [deals] = useState<Deal[]>([]);
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [deals, setDeals] = useState<Deal[]>([]);
 
   useEffect(() => {
     if (quote) {
@@ -53,9 +53,31 @@ const QuoteForm: React.FC<QuoteFormProps> = ({
       setLineItems(quote.lineItems || []);
     }
     // Load contacts and deals
-    // loadContacts();
-    // loadDeals();
+    loadContacts();
+    loadDeals();
   }, [quote]);
+
+  const loadContacts = async () => {
+    try {
+      // This would fetch contacts from the backend
+      // const response = await apiService.getData<Contact[]>('/contacts');
+      // setContacts(response);
+      setContacts([]); // Empty for now, will be populated when API is ready
+    } catch (error) {
+      console.error('Failed to load contacts:', error);
+    }
+  };
+
+  const loadDeals = async () => {
+    try {
+      // This would fetch deals from the backend
+      // const response = await apiService.getData<Deal[]>('/deals');
+      // setDeals(response);
+      setDeals([]); // Empty for now, will be populated when API is ready
+    } catch (error) {
+      console.error('Failed to load deals:', error);
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;

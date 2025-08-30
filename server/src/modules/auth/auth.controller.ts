@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Req, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Req, HttpCode, HttpStatus, UnauthorizedException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginDto, RegisterDto, RefreshTokenDto, AuthResponseDto, TokenResponseDto } from './dto/auth.dto';
@@ -26,8 +26,12 @@ export class AuthController {
   async login(
     @Body() loginDto: LoginDto,
     @CurrentUser() user: UserResponseDto,
+    @Req() request: any,
   ): Promise<AuthResponseDto> {
-    return this.authService.login(loginDto);
+    const userAgent = request.headers['user-agent'];
+    const ipAddress = request.ip || request.connection.remoteAddress;
+    
+    return this.authService.login(loginDto, userAgent, ipAddress);
   }
 
   @Post('register')
@@ -64,10 +68,31 @@ export class AuthController {
   @ApiOperation({ summary: 'User logout' })
   @ApiResponse({ status: 200, description: 'Logout successful' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async logout(@CurrentUser() user: UserResponseDto) {
-    // In a real application, you might want to blacklist the token
-    // or invalidate the session
-    return { message: 'Logout successful' };
+  async logout(@CurrentUser() user: UserResponseDto, @Req() request: any) {
+    // Extract the token from the Authorization header
+    const authHeader = request.headers.authorization;
+    const token = authHeader?.split(' ')[1];
+    
+    if (!token) {
+      throw new UnauthorizedException('No token provided');
+    }
+    
+    // Extract session ID from request headers
+    const sessionId = request.headers['x-session-id'];
+    
+    // Call the auth service to blacklist the token and destroy session
+    return this.authService.logout(token, user.id, sessionId);
+  }
+
+  @Post('logout-all-devices')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Logout from all devices' })
+  @ApiResponse({ status: 200, description: 'Logout from all devices successful' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async logoutFromAllDevices(@CurrentUser() user: UserResponseDto) {
+    return this.authService.logoutFromAllDevices(user.id);
   }
 
   @Post('me')

@@ -1,9 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { SessionManagementService } from './session-management.service';
 
 @Injectable()
 export class SessionService {
-  constructor(private readonly configService: ConfigService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly sessionManagementService: SessionManagementService,
+  ) {}
 
   getSessionConfig() {
     return {
@@ -19,19 +23,35 @@ export class SessionService {
   }
 
   async createSession(userId: string, sessionData: any): Promise<string> {
-    // In a real application, you would store session data in a database
-    // For now, we'll return a simple session ID
-    return `session_${userId}_${Date.now()}`;
+    return this.sessionManagementService.createSession(userId, sessionData);
   }
 
   async getSession(sessionId: string): Promise<any> {
-    // In a real application, you would retrieve session data from a database
-    // For now, we'll return null
-    return null;
+    return this.sessionManagementService.getSession(sessionId);
   }
 
   async destroySession(sessionId: string): Promise<void> {
-    // In a real application, you would remove session data from a database
-    // For now, we'll do nothing
+    return this.sessionManagementService.destroySession(sessionId);
+  }
+
+  // Additional convenience methods
+  async updateSession(sessionId: string, data: any): Promise<void> {
+    return this.sessionManagementService.updateSession(sessionId, data);
+  }
+
+  async getUserSessions(userId: string): Promise<any[]> {
+    return this.sessionManagementService.getUserSessions(userId);
+  }
+
+  async destroyAllUserSessions(userId: string): Promise<void> {
+    return this.sessionManagementService.destroyAllUserSessions(userId);
+  }
+
+  async extendSession(sessionId: string, hours: number = 24): Promise<void> {
+    return this.sessionManagementService.extendSession(sessionId, hours);
+  }
+
+  async getSessionStats(): Promise<any> {
+    return this.sessionManagementService.getSessionStats();
   }
 }

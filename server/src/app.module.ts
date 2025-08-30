@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { ScheduleModule } from '@nestjs/schedule';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { ContactsModule } from './modules/contacts/contacts.module';
@@ -16,6 +17,9 @@ import { ExportModule } from './modules/export/export.module';
 import { BulkOperationsModule } from './modules/bulk-operations/bulk-operations.module';
 import { PdfModule } from './modules/pdf/pdf.module';
 import { IntegrationsModule } from './modules/integrations/integrations.module';
+import { QuotesModule } from './modules/quotes/quotes.module';
+import { InvoicesModule } from './modules/invoices/invoices.module';
+import { SupportModule } from './modules/support/support.module';
 import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
@@ -33,6 +37,7 @@ import { PrismaModule } from './prisma/prisma.module';
         limit: 1000, // 1000 requests per hour
       },
     ]),
+    ScheduleModule.forRoot(),
     PrismaModule,
     AuthModule,
     UsersModule,
@@ -49,6 +54,9 @@ import { PrismaModule } from './prisma/prisma.module';
     BulkOperationsModule,
     PdfModule,
     IntegrationsModule,
+    QuotesModule,
+    InvoicesModule,
+    SupportModule,
   ],
 })
 export class AppModule {}

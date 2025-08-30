@@ -10,7 +10,7 @@ interface DealFormProps {
 }
 
 const DealForm: React.FC<DealFormProps> = ({ deal, isEditing, onSubmit, onClose }) => {
-  const [formData, setFormData] = useState<Partial<Deal>>({
+  const [formData, setFormData] = useState<Partial<Deal> & { expectedCloseDate: string }>({
     title: '',
     description: '',
     status: 'OPPORTUNITY',
@@ -211,7 +211,7 @@ const DealForm: React.FC<DealFormProps> = ({ deal, isEditing, onSubmit, onClose 
                 type="date"
                 id="expectedCloseDate"
                 name="expectedCloseDate"
-                value={formData.expectedCloseDate ? new Date(formData.expectedCloseDate).toISOString().split('T')[0] : ''}
+                value={formData.expectedCloseDate || ''}
                 onChange={handleInputChange}
                 className={errors.expectedCloseDate ? 'error' : ''}
               />

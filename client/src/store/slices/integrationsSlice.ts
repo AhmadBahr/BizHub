@@ -23,7 +23,7 @@ export const fetchIntegrations = createAsyncThunk(
   'integrations/fetchIntegrations',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await apiService.get<Integration[]>('/integrations');
+      const response = await apiService.getData<Integration[]>('/integrations');
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch integrations');
@@ -35,7 +35,7 @@ export const fetchIntegrationById = createAsyncThunk(
   'integrations/fetchIntegrationById',
   async (id: string, { rejectWithValue }) => {
     try {
-      const response = await apiService.get<Integration>(`/integrations/${id}`);
+      const response = await apiService.getData<Integration>(`/integrations/${id}`);
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch integration');
@@ -47,7 +47,7 @@ export const createIntegration = createAsyncThunk(
   'integrations/createIntegration',
   async (integrationData: Partial<Integration>, { rejectWithValue }) => {
     try {
-      const response = await apiService.post<Integration>('/integrations', integrationData);
+      const response = await apiService.postData<Integration>('/integrations', integrationData);
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to create integration');
@@ -59,7 +59,7 @@ export const updateIntegration = createAsyncThunk(
   'integrations/updateIntegration',
   async ({ id, data }: { id: string; data: Partial<Integration> }, { rejectWithValue }) => {
     try {
-      const response = await apiService.put<Integration>(`/integrations/${id}`, data);
+      const response = await apiService.putData<Integration>(`/integrations/${id}`, data);
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to update integration');
@@ -83,7 +83,7 @@ export const toggleIntegration = createAsyncThunk(
   'integrations/toggleIntegration',
   async ({ id, isActive }: { id: string; isActive: boolean }, { rejectWithValue }) => {
     try {
-      const response = await apiService.patch<Integration>(`/integrations/${id}/toggle`, { isActive });
+      const response = await apiService.patchData<Integration>(`/integrations/${id}/toggle`, { isActive });
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to toggle integration');
@@ -95,7 +95,7 @@ export const testIntegration = createAsyncThunk(
   'integrations/testIntegration',
   async (id: string, { rejectWithValue }) => {
     try {
-      const response = await apiService.post<{ success: boolean; message: string }>(`/integrations/${id}/test`);
+      const response = await apiService.postData<{ success: boolean; message: string }>(`/integrations/${id}/test`);
       return { id, ...response };
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to test integration');

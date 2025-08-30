@@ -224,7 +224,7 @@ const Deals: React.FC = () => {
 
       {showForm && (
         <DealForm
-          deal={selectedDeal}
+          deal={selectedDeal || undefined}
           isEditing={isEditing}
           onSubmit={isEditing ? handleUpdateDeal : handleCreateDeal}
           onClose={handleCloseForm}

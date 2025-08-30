@@ -31,7 +31,7 @@ export const fetchContacts = createAsyncThunk(
   'contacts/fetchContacts',
   async (params: { page?: number; limit?: number; search?: string; status?: string }, { rejectWithValue }) => {
     try {
-      const response = await apiService.getPaginated<Contact>('/contacts', params);
+      const response = await apiService.getData<{ contacts: Contact[]; total: number; page: number; limit: number }>('/contacts', params);
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch contacts');
@@ -43,7 +43,7 @@ export const fetchContactById = createAsyncThunk(
   'contacts/fetchContactById',
   async (id: string, { rejectWithValue }) => {
     try {
-      const response = await apiService.get<Contact>(`/contacts/${id}`);
+      const response = await apiService.getData<Contact>(`/contacts/${id}`);
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch contact');
@@ -55,7 +55,7 @@ export const createContact = createAsyncThunk(
   'contacts/createContact',
   async (contactData: Partial<Contact>, { rejectWithValue }) => {
     try {
-      const response = await apiService.post<Contact>('/contacts', contactData);
+      const response = await apiService.postData<Contact>('/contacts', contactData);
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to create contact');
@@ -67,7 +67,7 @@ export const updateContact = createAsyncThunk(
   'contacts/updateContact',
   async ({ id, data }: { id: string; data: Partial<Contact> }, { rejectWithValue }) => {
     try {
-      const response = await apiService.put<Contact>(`/contacts/${id}`, data);
+      const response = await apiService.putData<Contact>(`/contacts/${id}`, data);
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to update contact');
@@ -118,7 +118,7 @@ const contactsSlice = createSlice({
       })
       .addCase(fetchContacts.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.contacts = action.payload.data;
+        state.contacts = action.payload.contacts;
         state.total = action.payload.total;
         state.page = action.payload.page;
         state.limit = action.payload.limit;

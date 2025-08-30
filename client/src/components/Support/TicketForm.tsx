@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { SupportTicket, Contact } from '../../types';
 import './TicketForm.css';
+import AccessibleButton from '../Accessibility/AccessibleButton';
 
 interface TicketFormProps {
   ticket?: SupportTicket | null;
@@ -22,14 +23,14 @@ const TicketForm: React.FC<TicketFormProps> = ({ ticket, onSave, onCancel }) => 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [users, setUsers] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     loadFormData();
   }, []);
 
   const loadFormData = async () => {
-    setLoading(true);
+    setIsSubmitting(true);
     try {
       // Load contacts and users in parallel
       const [contactsResponse, usersResponse] = await Promise.all([
@@ -49,7 +50,7 @@ const TicketForm: React.FC<TicketFormProps> = ({ ticket, onSave, onCancel }) => 
     } catch (err) {
       console.error('Error loading form data:', err);
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -125,6 +126,8 @@ const TicketForm: React.FC<TicketFormProps> = ({ ticket, onSave, onCancel }) => 
   const getSelectedUser = () => {
     return users.find(user => user.id === formData.assignedTo);
   };
+
+  const isEditing = !!ticket;
 
   return (
     <div className="modal-overlay">
@@ -282,9 +285,13 @@ const TicketForm: React.FC<TicketFormProps> = ({ ticket, onSave, onCancel }) => 
             <button type="button" className="btn btn-secondary" onClick={onCancel}>
               Cancel
             </button>
-            <button type="submit" className="btn btn-primary">
-              {ticket ? 'Update Ticket' : 'Create Ticket'}
-            </button>
+            <AccessibleButton
+              type="submit"
+              variant="primary"
+              disabled={isSubmitting || !formData.title || !formData.description || !formData.priority || !formData.status}
+            >
+              {isEditing ? 'Update Ticket' : 'Create Ticket'}
+            </AccessibleButton>
           </div>
         </form>
       </div>

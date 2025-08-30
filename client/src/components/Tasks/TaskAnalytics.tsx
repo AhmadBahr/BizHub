@@ -3,8 +3,57 @@ import { apiService } from '../../services';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import './TaskAnalytics.css';
 
+interface TaskPriorityDistribution {
+  priority: string;
+  count: number;
+  percentage: number;
+  color: string; // Add color property
+}
+
+interface TaskStatusDistribution {
+  status: string;
+  count: number;
+  percentage: number;
+  color: string; // Add color property
+}
+
+interface TaskTopPerformer {
+  performer: string;
+  tasksCompleted: number;
+  percentage: number;
+  avatar: string; // Assuming avatar exists
+  completed: number; // Assuming completed tasks count exists
+  efficiency: number; // Assuming efficiency percentage exists
+}
+
+interface TaskCategoryBreakdown {
+  category: string;
+  count: number;
+  percentage: number;
+}
+
+interface TaskWeeklyCompletion {
+  week: string;
+  completed: number;
+  created: number;
+}
+
+interface TaskAnalyticsData {
+  totalTasks: number;
+  completedTasks: number;
+  pendingTasks: number;
+  overdueTasks: number;
+  completionRate: number; // Add missing property
+  averageCompletionTime: number; // Add missing property
+  priorityDistribution: TaskPriorityDistribution[];
+  statusDistribution: TaskStatusDistribution[];
+  weeklyCompletion: TaskWeeklyCompletion[]; // Add missing property
+  topPerformers: TaskTopPerformer[];
+  categoryBreakdown: TaskCategoryBreakdown[];
+}
+
 const TaskAnalytics: React.FC = () => {
-  const [analyticsData, setAnalyticsData] = useState<any>(null);
+  const [analyticsData, setAnalyticsData] = useState<TaskAnalyticsData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -18,8 +67,44 @@ const TaskAnalytics: React.FC = () => {
     
     try {
       const response = await apiService.get('/analytics/tasks');
-      if (response.success) {
-        setAnalyticsData(response.data);
+      if (response.success && response.data) {
+        // Transform the API data to match our interface
+        const apiData = response.data as any;
+        const transformedData: TaskAnalyticsData = {
+          totalTasks: apiData.totalTasks || 0,
+          completedTasks: apiData.completedTasks || 0,
+          pendingTasks: apiData.pendingTasks || 0,
+          overdueTasks: apiData.overdueTasks || 0,
+          completionRate: apiData.completionRate || 0,
+          averageCompletionTime: apiData.averageCompletionTime || 0,
+          priorityDistribution: (apiData.priorityDistribution || []).map((item: any) => ({
+            priority: item.priority,
+            count: item.count,
+            percentage: item.percentage || 0,
+            color: item.color
+          })),
+          statusDistribution: (apiData.statusDistribution || []).map((item: any) => ({
+            status: item.status,
+            count: item.count,
+            percentage: item.percentage || 0,
+            color: item.color
+          })),
+          weeklyCompletion: apiData.weeklyCompletion || [],
+          topPerformers: (apiData.topPerformers || []).map((item: any) => ({
+            performer: item.name,
+            tasksCompleted: item.completed,
+            percentage: 0, // Calculate this if needed
+            avatar: item.avatar || '👨‍💼',
+            completed: item.completed,
+            efficiency: item.efficiency || 0
+          })),
+          categoryBreakdown: (apiData.priorityBreakdown || []).map((item: any) => ({
+            category: item.priority,
+            count: item.count,
+            percentage: item.percentage || 0
+          }))
+        };
+        setAnalyticsData(transformedData);
       } else {
         setError('Failed to load analytics data');
       }
@@ -31,22 +116,9 @@ const TaskAnalytics: React.FC = () => {
     }
   };
 
-  // Default data structure while loading
-  const defaultData = {
-    totalTasks: 0,
-    completedTasks: 0,
-    pendingTasks: 0,
-    overdueTasks: 0,
-    completionRate: 0,
-    averageCompletionTime: 0,
-    priorityDistribution: [],
-    statusDistribution: [],
-    weeklyCompletion: [],
-    topPerformers: [],
-    categoryBreakdown: []
-  };
 
-    const data = analyticsData || defaultData;
+
+  const data = analyticsData;
 
   const formatPercentage = (value: number) => {
     return `${value}%`;
@@ -73,6 +145,17 @@ const TaskAnalytics: React.FC = () => {
         <div className="analytics-header">
           <h3>Task Analytics</h3>
           <p>Error: {error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!data) {
+    return (
+      <div className="task-analytics">
+        <div className="analytics-header">
+          <h3>Task Analytics</h3>
+          <p>No analytics data available</p>
         </div>
       </div>
     );
@@ -150,7 +233,7 @@ const TaskAnalytics: React.FC = () => {
       <div className="analytics-section">
         <h4>Priority Distribution</h4>
         <div className="priority-distribution">
-          {data.priorityDistribution.map((priority) => (
+          {data.priorityDistribution?.map((priority: TaskPriorityDistribution) => (
             <div key={priority.priority} className="priority-item">
               <div className="priority-info">
                 <span className="priority-name">{priority.priority}</span>
@@ -160,13 +243,13 @@ const TaskAnalytics: React.FC = () => {
                 <div 
                   className="priority-progress"
                   style={{ 
-                    width: `${(priority.count / data.totalTasks) * 100}%`,
+                    width: `${data.totalTasks > 0 ? (priority.count / data.totalTasks) * 100 : 0}%`,
                     backgroundColor: priority.color
                   }}
                 ></div>
               </div>
               <span className="priority-percentage">
-                {((priority.count / data.totalTasks) * 100).toFixed(1)}%
+                {data.totalTasks > 0 ? ((priority.count / data.totalTasks) * 100).toFixed(1) : 0}%
               </span>
             </div>
           ))}
@@ -176,7 +259,7 @@ const TaskAnalytics: React.FC = () => {
       <div className="analytics-section">
         <h4>Status Overview</h4>
         <div className="status-overview">
-          {data.statusDistribution.map((status) => (
+          {data.statusDistribution?.map((status: TaskStatusDistribution) => (
             <div key={status.status} className="status-item">
               <div className="status-color" style={{ backgroundColor: status.color }}></div>
               <div className="status-info">
@@ -184,7 +267,7 @@ const TaskAnalytics: React.FC = () => {
                 <span className="status-count">{status.count}</span>
               </div>
               <span className="status-percentage">
-                {((status.count / data.totalTasks) * 100).toFixed(1)}%
+                {data.totalTasks > 0 ? ((status.count / data.totalTasks) * 100).toFixed(1) : 0}%
               </span>
             </div>
           ))}
@@ -194,12 +277,12 @@ const TaskAnalytics: React.FC = () => {
       <div className="analytics-section">
         <h4>Top Performers</h4>
         <div className="performers-list">
-          {data.topPerformers.map((performer, index) => (
-            <div key={performer.name} className="performer-item">
+          {data.topPerformers?.map((performer: TaskTopPerformer, index: number) => (
+            <div key={performer.performer} className="performer-item">
               <div className="performer-rank">#{index + 1}</div>
               <div className="performer-avatar">{performer.avatar}</div>
               <div className="performer-info">
-                <div className="performer-name">{performer.name}</div>
+                <div className="performer-name">{performer.performer}</div>
                 <div className="performer-stats">
                   {performer.completed} completed • {performer.efficiency}% efficiency
                 </div>
@@ -213,11 +296,11 @@ const TaskAnalytics: React.FC = () => {
         <h4>Category Breakdown</h4>
         <div className="category-chart">
           <div className="category-legend">
-            {data.categoryBreakdown.map((category) => (
+            {data.categoryBreakdown?.map((category: TaskCategoryBreakdown) => (
               <div key={category.category} className="legend-item">
-                <span className="legend-color" style={{ 
+                <span className="legend-color" style={{
                   backgroundColor: ['#3b82f6', '#8b5cf6', '#f59e0b', '#10b981', '#ef4444'][
-                    data.categoryBreakdown.findIndex(c => c.category === category.category)
+                    data.categoryBreakdown?.findIndex(c => c.category === category.category) || 0
                   ]
                 }}></span>
                 <span className="legend-label">{category.category}</span>
@@ -241,7 +324,7 @@ const TaskAnalytics: React.FC = () => {
           </div>
           <div className="key-metric">
             <div className="key-metric-label">Overdue Rate</div>
-            <div className="key-metric-value">{formatPercentage((data.overdueTasks / data.totalTasks) * 100)}</div>
+            <div className="key-metric-value">{formatPercentage(data.totalTasks > 0 ? (data.overdueTasks / data.totalTasks) * 100 : 0)}</div>
           </div>
         </div>
       </div>
