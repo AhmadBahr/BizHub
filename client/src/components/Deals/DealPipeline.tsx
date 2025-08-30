@@ -36,7 +36,7 @@ const DealPipeline: React.FC<DealPipelineProps> = ({
   };
 
   const getDealsForStage = (stage: string) => {
-    return deals.filter(deal => deal.status === stage);
+    return deals?.filter(deal => deal.status === stage) || [];
   };
 
   const getProbabilityColor = (probability: number) => {
@@ -61,6 +61,17 @@ const DealPipeline: React.FC<DealPipelineProps> = ({
       <div className="deal-pipeline-loading">
         <div className="loading-spinner"></div>
         <p>Loading pipeline...</p>
+      </div>
+    );
+  }
+
+  // Safety check for undefined deals
+  if (!deals || deals.length === 0) {
+    return (
+      <div className="deal-pipeline-empty">
+        <div className="empty-icon">📊</div>
+        <h3>No deals found</h3>
+        <p>Create your first deal to visualize your sales pipeline</p>
       </div>
     );
   }
