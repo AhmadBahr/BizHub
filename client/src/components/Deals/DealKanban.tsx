@@ -40,7 +40,7 @@ const DealKanban: React.FC<DealKanbanProps> = ({
   };
 
   const getDealsForStage = (stage: string) => {
-    return deals.filter(deal => deal.status === stage);
+    return deals?.filter(deal => deal.status === stage) || [];
   };
 
   const handleDragStart = (e: React.DragEvent, deal: Deal) => {
@@ -85,6 +85,17 @@ const DealKanban: React.FC<DealKanbanProps> = ({
       <div className="deal-kanban-loading">
         <div className="loading-spinner"></div>
         <p>Loading deals...</p>
+      </div>
+    );
+  }
+
+  // Safety check for undefined deals
+  if (!deals || deals.length === 0) {
+    return (
+      <div className="deal-kanban-empty">
+        <div className="empty-icon">💼</div>
+        <h3>No deals found</h3>
+        <p>Create your first deal to get started with your sales pipeline</p>
       </div>
     );
   }
