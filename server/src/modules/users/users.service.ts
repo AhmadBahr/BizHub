@@ -2,10 +2,18 @@ import { Injectable, NotFoundException, ConflictException } from '@nestjs/common
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateUserDto, UpdateUserDto, UserQueryDto, UserResponseDto } from './dto/user.dto';
 import { PaginationResponseDto } from '../../common/dto/pagination.dto';
+import { TokenManagementService } from '../auth/token-management.service';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly tokenManagementService: TokenManagementService,
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
+  ) {}
 
   async create(createUserDto: CreateUserDto): Promise<UserResponseDto> {
     // Check if user already exists
@@ -224,24 +232,29 @@ export class UsersService {
   }
 
   async updateResetToken(id: string, resetToken: string): Promise<void> {
-    await this.prisma.user.update({
-      where: { id },
-      data: { 
-        // In a real app, you'd store this in a separate table
-        // For now, we'll use a temporary field or store it in the user record
-        // This is a simplified implementation
-      },
-    });
+    // This method is now deprecated - tokens are stored in separate tables
+    // Use TokenManagementService.createPasswordResetToken() instead
+    console.warn('updateResetToken is deprecated. Use TokenManagementService.createPasswordResetToken() instead');
   }
 
   async findByResetToken(token: string): Promise<any> {
-    // In a real app, you'd verify the JWT token and find the user
-    // For now, this is a simplified implementation
     try {
-      // You would decode the JWT token here and find the user
-      // For now, return null to indicate token is invalid
+      // Verify the JWT token and find the user using TokenManagementService
+      const userId = await this.tokenManagementService.verifyPasswordResetToken(token);
+      
+      if (userId) {
+        // Find the user by ID
+        const user = await this.prisma.user.findUnique({
+          where: { id: userId },
+          include: { role: true },
+        });
+        
+        return user;
+      }
+      
       return null;
     } catch (error) {
+      console.error('Error finding user by reset token:', error);
       return null;
     }
   }
@@ -251,29 +264,35 @@ export class UsersService {
       where: { id },
       data: { 
         password: hashedPassword,
-        // Clear reset token
+        // Reset tokens are automatically cleared when used via TokenManagementService
       },
     });
   }
 
   async updateVerificationToken(id: string, verificationToken: string): Promise<void> {
-    await this.prisma.user.update({
-      where: { id },
-      data: { 
-        // In a real app, you'd store this in a separate table
-        // For now, this is a simplified implementation
-      },
-    });
+    // This method is now deprecated - tokens are stored in separate tables
+    // Use TokenManagementService.createEmailVerificationToken() instead
+    console.warn('updateVerificationToken is deprecated. Use TokenManagementService.createEmailVerificationToken() instead');
   }
 
   async findByVerificationToken(token: string): Promise<any> {
-    // In a real app, you'd verify the JWT token and find the user
-    // For now, this is a simplified implementation
     try {
-      // You would decode the JWT token here and find the user
-      // For now, return null to indicate token is invalid
+      // Verify the JWT token and find the user using TokenManagementService
+      const userId = await this.tokenManagementService.verifyEmailVerificationToken(token);
+      
+      if (userId) {
+        // Find the user by ID
+        const user = await this.prisma.user.findUnique({
+          where: { id: userId },
+          include: { role: true },
+        });
+        
+        return user;
+      }
+      
       return null;
     } catch (error) {
+      console.error('Error finding user by verification token:', error);
       return null;
     }
   }
@@ -282,9 +301,74 @@ export class UsersService {
     await this.prisma.user.update({
       where: { id },
       data: { 
-        // In a real app, you'd have an emailVerified field
-        // For now, this is a simplified implementation
+        emailVerified: true,
+        emailVerifiedAt: new Date(),
       },
     });
+  }
+
+  /**
+   * Create a password reset token for a user
+   */
+  async createPasswordResetToken(userId: string): Promise<string> {
+    return this.tokenManagementService.createPasswordResetToken(userId);
+  }
+
+  /**
+   * Create an email verification token for a user
+   */
+  async createEmailVerificationToken(userId: string): Promise<string> {
+    return this.tokenManagementService.createEmailVerificationToken(userId);
+  }
+
+  /**
+   * Verify and consume a password reset token
+   */
+  async verifyPasswordResetToken(token: string): Promise<string> {
+    return this.tokenManagementService.verifyPasswordResetToken(token);
+  }
+
+  /**
+   * Verify and consume an email verification token
+   */
+  async verifyEmailVerificationToken(token: string): Promise<string> {
+    return this.tokenManagementService.verifyEmailVerificationToken(token);
+  }
+
+  /**
+   * Get token statistics for a user
+   */
+  async getUserTokenStats(userId: string) {
+    return this.tokenManagementService.getUserTokenStats(userId);
+  }
+
+  /**
+   * Check if user's email is verified
+   */
+  async isEmailVerified(userId: string): Promise<boolean> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { emailVerified: true },
+    });
+    
+    return user?.emailVerified || false;
+  }
+
+  /**
+   * Get user's email verification status
+   */
+  async getEmailVerificationStatus(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { 
+        emailVerified: true,
+        emailVerifiedAt: true,
+      },
+    });
+    
+    return {
+      emailVerified: user?.emailVerified || false,
+      emailVerifiedAt: user?.emailVerifiedAt,
+    };
   }
 }
