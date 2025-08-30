@@ -28,6 +28,10 @@ interface ScheduledExport {
   filters?: Record<string, any>;
   recipients: string[];
   isActive: boolean;
+  lastRun?: Date;
+  nextRun?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 interface CreateScheduledExportFormProps {
