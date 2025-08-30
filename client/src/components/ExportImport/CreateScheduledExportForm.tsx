@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
   XMarkIcon,
-  CalendarIcon,
   ClockIcon,
   EnvelopeIcon,
   FunnelIcon,
