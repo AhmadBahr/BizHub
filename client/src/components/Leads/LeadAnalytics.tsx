@@ -18,6 +18,7 @@ interface LeadAnalyticsData {
     status: string;
     count: number;
     percentage: number;
+    color?: string;
   }>;
   monthlyLeads: Array<{
     month: string;
@@ -72,24 +73,16 @@ const LeadAnalytics: React.FC = () => {
 
     const data = analyticsData || defaultData;
 
-  const getScoreColor = (score: number) => {
-    if (score >= 80) return '#10b981';
-    if (score >= 60) return '#f59e0b';
-    if (score >= 40) return '#f97316';
-    return '#ef4444';
-  };
-
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
-      'New': '#3b82f6',
-      'Contacted': '#8b5cf6',
-      'Qualified': '#f59e0b',
-      'Proposal': '#ec4899',
-      'Negotiation': '#ef4444',
-      'Closed Won': '#10b981',
-      'Closed Lost': '#6b7280'
+      'New': '#3B82F6',       // blue-500
+      'Qualified': '#22C55E',   // green-500
+      'Contacted': '#F59E0B',   // amber-500
+      'Nurturing': '#8B5CF6',   // violet-500
+      'Unqualified': '#EF4444', // red-500
+      'Converted': '#10B981',   // emerald-500
     };
-    return colors[status] || '#6b7280';
+    return colors[status] || '#6B7280'; // gray-500
   };
 
   if (loading) {
@@ -206,16 +199,13 @@ const LeadAnalytics: React.FC = () => {
 
       <div className="status-distribution">
         <h4>Status Distribution</h4>
-        {analyticsData.statusDistribution.map((status, index) => (
+        {data.statusDistribution.map((statusItem, index) => (
           <div key={index} className="status-item">
-            <div className="status-info">
-              <div 
-                className="status-dot"
-                style={{ backgroundColor: status.color }}
-              ></div>
-              <span className="status-name">{status.status}</span>
-            </div>
-            <div className="status-count">{status.count}</div>
+            <div
+              className="status-color-box"
+              style={{ backgroundColor: statusItem.color || getStatusColor(statusItem.status) }}
+            ></div>
+            <span>{statusItem.status} ({statusItem.count})</span>
           </div>
         ))}
       </div>
@@ -234,7 +224,7 @@ const LeadAnalytics: React.FC = () => {
             height: '100%',
             padding: '16px'
           }}>
-            {analyticsData.monthlyTrend.map((month, index) => (
+            {data.monthlyLeads.map((monthData: { month: string; leads: number }, index: number) => (
               <div key={index} style={{ 
                 display: 'flex', 
                 flexDirection: 'column', 
@@ -243,15 +233,8 @@ const LeadAnalytics: React.FC = () => {
               }}>
                 <div style={{
                   width: '20px',
-                  height: `${(month.leads / 31) * 100}%`,
+                  height: `${(monthData.leads / Math.max(...data.monthlyLeads.map(m => m.leads))) * 100}%`,
                   backgroundColor: 'var(--primary-color)',
-                  borderRadius: '2px 2px 0 0',
-                  minHeight: '4px'
-                }}></div>
-                <div style={{
-                  width: '20px',
-                  height: `${(month.qualified / 31) * 100}%`,
-                  backgroundColor: 'var(--success-color)',
                   borderRadius: '2px 2px 0 0',
                   minHeight: '4px'
                 }}></div>
@@ -261,7 +244,7 @@ const LeadAnalytics: React.FC = () => {
                   transform: 'rotate(-45deg)',
                   transformOrigin: 'center'
                 }}>
-                  {month.month}
+                  {monthData.month}
                 </span>
               </div>
             ))}
