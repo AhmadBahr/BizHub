@@ -1,0 +1,253 @@
+.ticket-form-modal {
+  max-width: 800px;
+  width: 90%;
+  max-height: 90vh;
+}
+
+.ticket-form {
+  padding: 0;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 30px;
+  padding: 20px;
+}
+
+.form-section {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.form-section h3 {
+  margin: 0 0 20px 0;
+  color: #2c3e50;
+  font-size: 18px;
+  font-weight: 600;
+  border-bottom: 2px solid #3498db;
+  padding-bottom: 8px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #2c3e50;
+  font-size: 14px;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.form-group input.error,
+.form-group textarea.error,
+.form-group select.error {
+  border-color: #e74c3c;
+  box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+}
+
+.error-message {
+  display: block;
+  color: #e74c3c;
+  font-size: 12px;
+  margin-top: 5px;
+  font-weight: 500;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.contact-summary,
+.user-summary {
+  margin-top: 10px;
+  padding: 12px;
+  background: white;
+  border: 1px solid #ecf0f1;
+  border-radius: 6px;
+  border-left: 4px solid #3498db;
+}
+
+.contact-info,
+.user-info {
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.contact-info strong,
+.user-info strong {
+  color: #2c3e50;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.contact-info div,
+.user-info div {
+  color: #7f8c8d;
+  margin-bottom: 2px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  padding: 20px;
+  border-top: 1px solid #ecf0f1;
+  background: #f8f9fa;
+}
+
+.btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-primary {
+  background-color: #3498db;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #2980b9;
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background-color: #95a5a6;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #7f8c8d;
+}
+
+/* Priority and Status Colors */
+.form-group select[name="priority"] option[value="URGENT"] {
+  color: #e74c3c;
+  font-weight: 600;
+}
+
+.form-group select[name="priority"] option[value="HIGH"] {
+  color: #f39c12;
+  font-weight: 600;
+}
+
+.form-group select[name="priority"] option[value="MEDIUM"] {
+  color: #f1c40f;
+  font-weight: 600;
+}
+
+.form-group select[name="priority"] option[value="LOW"] {
+  color: #27ae60;
+  font-weight: 600;
+}
+
+.form-group select[name="status"] option[value="OPEN"] {
+  color: #3498db;
+  font-weight: 600;
+}
+
+.form-group select[name="status"] option[value="IN_PROGRESS"] {
+  color: #f39c12;
+  font-weight: 600;
+}
+
+.form-group select[name="status"] option[value="RESOLVED"] {
+  color: #27ae60;
+  font-weight: 600;
+}
+
+.form-group select[name="status"] option[value="CLOSED"] {
+  color: #95a5a6;
+  font-weight: 600;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .ticket-form-modal {
+    width: 95%;
+    margin: 10px;
+  }
+
+  .form-grid {
+    gap: 20px;
+    padding: 15px;
+  }
+
+  .form-section {
+    padding: 15px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+    padding: 15px;
+  }
+
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .form-grid {
+    padding: 10px;
+  }
+
+  .form-section {
+    padding: 12px;
+  }
+
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    padding: 10px;
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+}
