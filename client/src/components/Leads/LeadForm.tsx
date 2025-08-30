@@ -201,7 +201,7 @@ const LeadForm: React.FC<LeadFormProps> = ({ lead, isEditing, onSubmit, onClose 
                 type="date"
                 name="expectedCloseDate"
                 className="form-input"
-                value={formData.expectedCloseDate ? formData.expectedCloseDate.toISOString().split('T')[0] : ''}
+                value={formData.expectedCloseDate ? new Date(formData.expectedCloseDate).toISOString().split('T')[0] : ''}
                 onChange={handleInputChange}
               />
             </div>
